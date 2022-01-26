@@ -64,7 +64,7 @@ public class Serv4Web {
                 .onItem().transform(integer -> { //先转换为总页数
                     int total = 0;
                     if (integer != 0) {
-                        total = integer / request.getPageSize() + (integer % request.getPageSize() == 0 ? 0 : 1);
+                        total = count2TotalPage(integer, request.getPageSize());
                     }
                     return total;
                 });
@@ -231,29 +231,43 @@ public class Serv4Web {
     //搜索页, 所有资源都是一个article， 所以这里就搜article表即可，
     //#keyword 是按照类型搜索
     //#keyword# 是按照标签搜索
-    public Uni<SearchData.Items> search(String keyword) {
+    public Uni<SearchData.Items> search(String keyword, PageVO pageVO) {
         Multi<Article> search;
+        Uni<Integer> count;
         if (keyword == null) {
             keyword = "";
         }
+
+        int limit = (pageVO.getPage() - 1) * pageVO.getPageSize();
+        int offset = pageVO.getPageSize();
+
+
         if (keyword.startsWith("#") && keyword.endsWith("#")) {
             //标签搜索
-            search = articleDao.searchWithTag(keyword.substring(1, keyword.length() - 1));
+            keyword = keyword.substring(1, keyword.length() - 1);
+            search = articleDao.searchWithTag(keyword, limit, offset);
+            count = articleDao.countWithTag(keyword);
         } else if (keyword.startsWith("#")) {
             //article 类型搜索
             ArticleTypeEnum typeEnum = ArticleTypeEnum.valueOf(keyword.substring(1));
-            search = articleDao.searchWithType(typeEnum.name());
+            search = articleDao.searchWithType(typeEnum.name(), limit, offset);
+            count = articleDao.countWithType(typeEnum.name());
         } else {
             //title 搜索
-            search = articleDao.searchWithTitle(keyword);
+            search = articleDao.searchWithTitle(keyword, limit, offset);
+            count = articleDao.countWithTitle(keyword);
         }
 
-        return search.onItem().transform(article ->
+        return Uni.combine().all().unis(search.onItem().transform(article ->
                 SearchData.Item.newBuilder().setTitle(article.getTitle())
                         .setArticleId(article.getId())
                         .setType(article.getArticleType())
                         .setTitleImage(article.getTitleImage()).build()
-        ).collect().asList().onItem().transform(l -> SearchData.Items.newBuilder().addAllItems(l).build());
+        ).collect().asList(), count).combinedWith(objects ->
+                SearchData.Items.newBuilder()
+                        .setPage(pageVO.getPage())
+                        .setTotalPage(count2TotalPage((int) objects.get(1), pageVO.getPageSize()))
+                        .addAllItems((List<SearchData.Item>) objects.get(0)).build());
     }
 
 
@@ -313,6 +327,10 @@ public class Serv4Web {
                 break;
         }
         return builder.build();
+    }
+
+    private int count2TotalPage(int integer, int pageSize){
+        return integer / pageSize + (integer % pageSize == 0 ? 0 : 1);
     }
 
 }

@@ -7,6 +7,7 @@ import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.mutiny.mysqlclient.MySQLPool;
 import io.vertx.mutiny.sqlclient.Row;
+import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.inject.Inject;
@@ -39,13 +40,7 @@ public abstract class BaseDao<T> {
 
     public Uni<Integer> count(String where, Tuple value){
         return mySQLPool.preparedQuery(getCountSql(where, Optional.empty())).execute(value)
-                .onItem().transform(rows -> {
-                    Integer count = 0;
-                    for (Row row : rows) {
-                        count = row.getInteger("count");
-                    }
-                    return count;
-                });
+                .onItem().transform(this::transToCount);
     }
 
     public Uni<T> queryWithId(long id, String... columns) {
@@ -90,6 +85,19 @@ public abstract class BaseDao<T> {
             return " where " + where;
         }
         return " " + where;
+    }
+
+    public Integer transToCount(RowSet<Row> rows) {
+        List<Integer> res = new ArrayList<>();
+        for (Row row : rows) {
+            if (row.getColumnIndex("count") != -1) {
+                res.add(row.getInteger("count"));
+            } else {
+                res.add(row.getInteger(0));
+            }
+
+        }
+        return res.size() == 0 ? null : res.get(0);
     }
 
     public abstract T transForm(Row row);

@@ -51,9 +51,10 @@ public class BlogResource {
 
     @GET
     @Produces("application/x-protobuf")
-    @Path("/search") //TODO 分页
-    public Uni<byte[]> search(@QueryParam("keyword") String keyword) {
-        return serv4Web.search(keyword).onItem().transform(search -> search.toByteArray());
+    @Path("/search")
+    public Uni<byte[]> search(@QueryParam("keyword") String keyword,
+                              @QueryParam("page") int page) {
+        return serv4Web.search(keyword, new PageVO().setPage(page).setPageSize(3)).onItem().transform(search -> search.toByteArray());
     }
 
 
@@ -69,10 +70,10 @@ public class BlogResource {
     @Path("/detail/{id}/writeComment")
     @IPValid
     public Uni<String> sendComment(@PathParam("id") long articleId,
-                                    @FormParam("nick")String nick,
-                                    @FormParam("email")String email,
-                                    RoutingContext rc,
-                                    @FormParam("content") String content){
+                                   @FormParam("nick") String nick,
+                                   @FormParam("email") String email,
+                                   RoutingContext rc,
+                                   @FormParam("content") String content) {
         if (content.length() > 300) {
             return Uni.createFrom().item("太长了，不接受");
         }
