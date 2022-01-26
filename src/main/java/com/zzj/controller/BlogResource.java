@@ -1,14 +1,16 @@
 package com.zzj.controller;
 
+import com.zzj.enums.ConfType;
 import com.zzj.service.Serv4Web;
+import com.zzj.superior.IPValid;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Path("blog")
 public class BlogResource {
@@ -39,11 +41,50 @@ public class BlogResource {
         return serv4Web.detail(articleId).onItem().transform(detail -> detail.toByteArray());
     }
 
+    @GET
+    @Produces("application/x-protobuf")
+    @Path("/footer/sharps")
+    public Uni<byte[]> getSharpComments() {
+        return serv4Web.getSharpComments().onItem().transform(detail -> detail.toByteArray());
+    }
+
+
+    @GET
+    @Produces("application/x-protobuf")
+    @Path("/search") //TODO 分页
+    public Uni<byte[]> search(@QueryParam("keyword") String keyword) {
+        return serv4Web.search(keyword).onItem().transform(search -> search.toByteArray());
+    }
+
 
     @GET
     @Produces("application/x-protobuf")
     @Path("/detail/{id}/comments")
     public Uni<byte[]> comments(@PathParam("id") long articleId) {
         return serv4Web.queryComments(articleId).onItem().transform(comments -> comments.toByteArray());
+    }
+
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/detail/{id}/writeComment")
+    @IPValid
+    public Uni<String> sendComment(@PathParam("id") long articleId,
+                                    @FormParam("nick")String nick,
+                                    @FormParam("email")String email,
+                                    RoutingContext rc,
+                                    @FormParam("content") String content){
+        if (content.length() > 300) {
+            return Uni.createFrom().item("太长了，不接受");
+        }
+        return serv4Web.writeComment(articleId, nick, email, content);
+    }
+
+
+    @GET
+    @IPValid
+    @Produces("application/json")
+    @Path("/frontConf")
+    public Uni<JsonObject> comments() {
+        return serv4Web.getDefaultConf(ConfType.front);
     }
 }

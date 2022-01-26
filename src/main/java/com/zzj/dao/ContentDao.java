@@ -3,21 +3,30 @@ package com.zzj.dao;
 import com.zzj.common.DelegateRow;
 import com.zzj.constants.ApplicationConst;
 import com.zzj.entity.Contents;
-import com.zzj.enums.ContentType;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @ApplicationScoped
 public class ContentDao extends BaseDao<Contents> {
 
-    private  final String queryContentWithArticleId = "select * from contents c left join article2contents ac on c.id = ac.content_id where ac.article_id = ? order by ac.id asc";
+    private final String queryContentWithArticleId =
+            """
+                    SELECT
+                    	*
+                    FROM
+                    	contents c
+                    	LEFT JOIN article2contents ac ON c.id = ac.content_id
+                    WHERE
+                    	ac.article_id = ?
+                    ORDER BY
+                    	ac.id ASC
+                    """;
+
 
     public ContentDao() {
         super(ApplicationConst.t_contents);

@@ -1,8 +1,6 @@
 package com.zzj.superior;
 
 
-import io.quarkus.redis.client.reactive.ReactiveRedisClient;
-
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
@@ -15,8 +13,8 @@ import java.io.Serializable;
 @Interceptor
 public class CacheInvalidInterceptor implements Serializable {
 
-    @Inject
-    ReactiveRedisClient reactiveRedisClient;
+    //@Inject
+    //ReactiveRedisClient reactiveRedisClient;
 
     @AroundInvoke
     Object cacheInvocation(InvocationContext context) throws Exception {

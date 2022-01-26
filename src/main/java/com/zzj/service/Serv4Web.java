@@ -4,17 +4,20 @@ import com.zzj.constants.ApplicationConst;
 import com.zzj.dao.*;
 import com.zzj.entity.Article;
 import com.zzj.entity.Contents;
+import com.zzj.entity.SystemConf;
 import com.zzj.enums.ArticleTypeEnum;
+import com.zzj.enums.ConfType;
 import com.zzj.enums.ContentType;
 import com.zzj.superior.CacheIt;
+import com.zzj.utils.ContentUtils;
 import com.zzj.utils.DateUtils;
-import com.zzj.vo.ArticleOuterClass;
-import com.zzj.vo.CommentOuterClass;
-import com.zzj.vo.HomeListOuterClass;
-import com.zzj.vo.RightSideListOuterClass;
+import com.zzj.vo.*;
 import com.zzj.vo.request.PageVO;
 import io.netty.util.internal.StringUtil;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -25,15 +28,16 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 
-;
 
 @ApplicationScoped
 public class Serv4Web {
 
+    private final Logger logger = LoggerFactory.getLogger(Serv4Web.class);
     //图片就放服务器就行了， 不需要搞什么图床，
 
     @Inject
     private CommentsDao commentsDao;
+
     @Inject
     private ArticleDao articleDao;
 
@@ -46,6 +50,9 @@ public class Serv4Web {
     @Inject
     private ContentDao contentDao;
 
+    @Inject
+    private SystemConfDao systemConfDao;
+
     //主页
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {
         HomeListOuterClass.HomeList.Builder builder = HomeListOuterClass.HomeList.newBuilder();
@@ -53,7 +60,7 @@ public class Serv4Web {
         int offset = request.getPageSize();
         builder.setPage(request.getPage());
 
-        Uni<Integer> countUni = articleDao.count("", Tuple.tuple())
+        Uni<Integer> countUni = articleDao.count(" where hidden = 0 ", Tuple.tuple())
                 .onItem().transform(integer -> { //先转换为总页数
                     int total = 0;
                     if (integer != 0) {
@@ -100,7 +107,7 @@ public class Serv4Web {
                 .onItem().transform(comments -> RightSideListOuterClass.LatestComment.newBuilder()
                         .setCommentId(comments.getId())
                         .setArticleId(comments.getArticleId())
-                        .setContent(comments.getContent().substring(0,20)+"...")
+                        .setContent(ContentUtils.subString(comments.getContent(), 20))
                         .setDate(DateUtils.transToYMD(comments.getCreateTime())).build())
                 .collect().asList();
     }
@@ -163,7 +170,7 @@ public class Serv4Web {
 
     //评论, 不和详情一并返回， 错开来
     public Uni<CommentOuterClass.Comments> queryComments(long articleId) {
-        return commentsDao.queryWithCondition("where article_id = ? ", Tuple.of(articleId))
+        return commentsDao.queryWithCondition("where article_id = ? and hidden = 0  ", Tuple.of(articleId))
                 .onItem().transform(comments -> {
                     CommentOuterClass.Comment.Builder builder =
                             CommentOuterClass.Comment.newBuilder();
@@ -173,7 +180,7 @@ public class Serv4Web {
 
                     if (!StringUtil.isNullOrEmpty(comments.getReplyContent())) {
                         builder.setReply(CommentOuterClass.Reply.newBuilder()
-                                .setAuthor("作者")
+                                .setAuthor("作者_(:з」∠)_")
                                 .setDate(DateUtils.transToYMD(comments.getReplyTime()))
                                 .setContent(comments.getReplyContent() == null ? "" : comments.getReplyContent()).build());
                     }
@@ -181,6 +188,72 @@ public class Serv4Web {
                     return builder.build();
                 }).collect().asList().onItem().transform(list -> CommentOuterClass.Comments.newBuilder().addAllArray(list).build());
 
+    }
+
+
+    //TODO 发表评论,写操作拦截，
+    // 同一个文章一个 ip只要发送超过了3次，就列入黑名单
+    public Uni<String> writeComment(long articleId, String nick, String email, String comment) {
+        return commentsDao.insertComments(articleId, nick, email, comment)
+                .onItem().transform(aLong -> {
+                    logger.info("save data id is " + aLong);
+                    return "success";
+                });
+    }
+
+
+    //锐评
+    public Uni<SharpCommentOuterClass.SharpComments> getSharpComments() {
+        return commentsDao.queryWithCondition("where is_sharp = 1 and hidden = 0  ", Tuple.tuple(), "article_id", "content", "nick")
+                .onItem().transform(comments ->
+                        SharpCommentOuterClass.SharpComment.newBuilder()
+                                .setNick(comments.getNick())
+                                .setArticleId(comments.getArticleId())
+                                .setContent(ContentUtils.subString(comments.getContent(), 80)).build())
+                .collect().asList().onItem().transform(list -> SharpCommentOuterClass.SharpComments.newBuilder().addAllComments(list).build());
+
+    }
+
+
+    //所需的前端配置，
+    public Uni<JsonObject> getDefaultConf(ConfType type) {
+        return systemConfDao.queryWithCondition(" where type = ?", Tuple.of(type.name()), "name", "value")
+                .collect().asList().onItem().transform(systemConfs -> {
+                    JsonObject jsonObject = new JsonObject();
+                    for (SystemConf conf : systemConfs) {
+                        jsonObject.put(conf.getName(), conf.getValue());
+                    }
+                    return jsonObject;
+                });
+    }
+
+
+    //搜索页, 所有资源都是一个article， 所以这里就搜article表即可，
+    //#keyword 是按照类型搜索
+    //#keyword# 是按照标签搜索
+    public Uni<SearchData.Items> search(String keyword) {
+        Multi<Article> search;
+        if (keyword == null) {
+            keyword = "";
+        }
+        if (keyword.startsWith("#") && keyword.endsWith("#")) {
+            //标签搜索
+            search = articleDao.searchWithTag(keyword.substring(1, keyword.length() - 1));
+        } else if (keyword.startsWith("#")) {
+            //article 类型搜索
+            ArticleTypeEnum typeEnum = ArticleTypeEnum.valueOf(keyword.substring(1));
+            search = articleDao.searchWithType(typeEnum.name());
+        } else {
+            //title 搜索
+            search = articleDao.searchWithTitle(keyword);
+        }
+
+        return search.onItem().transform(article ->
+                SearchData.Item.newBuilder().setTitle(article.getTitle())
+                        .setArticleId(article.getId())
+                        .setType(article.getArticleType())
+                        .setTitleImage(article.getTitleImage()).build()
+        ).collect().asList().onItem().transform(l -> SearchData.Items.newBuilder().addAllItems(l).build());
     }
 
 
@@ -241,27 +314,5 @@ public class Serv4Web {
         }
         return builder.build();
     }
-
-
-
-    /*
-
-    //搜索页
-    public Multi search() {
-
-    }
-
-    //锐评
-    public Multi getSharpComments() {
-
-    }
-
-
-
-    //发表评论
-    public Uni comment() {
-
-    }*/
-
 
 }

@@ -2,7 +2,7 @@ package com.zzj.vo.request;
 
 public class PageVO {
     private int page;
-    private int pageSize = 7;
+    private int pageSize = 6;
 
     public int getPage() {
         return page;
