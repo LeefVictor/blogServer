@@ -10,6 +10,7 @@ public class ApplicationConst {
     public final static String t_system_conf = "system_conf";
     public final static String t_tags = "tags";
     public final static String t_uploadPhoto = "upload_image";
+    public final static String t_blackList = "black_list";
 
     public final static String original = "原创";
     public final static String reprinted = "转载";

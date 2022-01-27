@@ -40,7 +40,7 @@ public abstract class BaseDao<T> {
 
     public Uni<Integer> count(String where, Tuple value){
         return mySQLPool.preparedQuery(getCountSql(where, Optional.empty())).execute(value)
-                .onItem().transform(this::transToCount);
+                .onItem().transform(this::transToCount).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     public Uni<T> queryWithId(long id, String... columns) {
@@ -52,13 +52,13 @@ public abstract class BaseDao<T> {
                         res.add(transForm(row));
                     }
                     return res.size() == 0 ? null : res.get(0);
-                });
+                }).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     public Multi<T> queryWithCondition(String where, Tuple value, String... columns) {
         return mySQLPool.preparedQuery(getQuerySql(where, columns)).execute(value)
-                .onItem().transformToMulti(set-> Multi.createFrom().iterable(set))
-                .onItem().transform(this::transForm);
+                .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     private String getQuerySql(String where, String... columns) {

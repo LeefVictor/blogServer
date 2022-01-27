@@ -2,7 +2,6 @@ package com.zzj.superior;
 
 
 import javax.annotation.Priority;
-import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -17,7 +16,7 @@ public class CacheInvalidInterceptor implements Serializable {
     //ReactiveRedisClient reactiveRedisClient;
 
     @AroundInvoke
-    Object cacheInvocation(InvocationContext context) throws Exception {
+    Object cacheInvalidInterceptor(InvocationContext context) throws Exception {
         // ... before
 
         Object ret = context.proceed();

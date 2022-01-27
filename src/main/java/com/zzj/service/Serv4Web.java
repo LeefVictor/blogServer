@@ -126,8 +126,11 @@ public class Serv4Web {
     // 文章分类
     @CacheIt
     public Uni<List<RightSideListOuterClass.ArticleType>> articleCategory() {
-        return articleDao.queryAllType().onItem().transform(tuple -> RightSideListOuterClass.ArticleType.newBuilder().setName(ArticleTypeEnum.valueOf(tuple.getString(0)).getDesc())
-                .setCount(tuple.getInteger(1)).build()).collect().asList();
+        return articleDao.queryAllType().onItem().transform(tuple -> {
+            ArticleTypeEnum are = ArticleTypeEnum.valueOf(tuple.getString(0));
+            return RightSideListOuterClass.ArticleType.newBuilder().setValue(are.name()).setName(are.getDesc())
+                    .setCount(tuple.getInteger(1)).build();
+        }).collect().asList();
     }
 
     //博客标签，
@@ -242,12 +245,12 @@ public class Serv4Web {
         int offset = pageVO.getPageSize();
 
 
-        if (keyword.startsWith("#") && keyword.endsWith("#")) {
+        if (keyword.startsWith("@") && keyword.endsWith("@")) {
             //标签搜索
             keyword = keyword.substring(1, keyword.length() - 1);
             search = articleDao.searchWithTag(keyword, limit, offset);
             count = articleDao.countWithTag(keyword);
-        } else if (keyword.startsWith("#")) {
+        } else if (keyword.startsWith("@")) {
             //article 类型搜索
             ArticleTypeEnum typeEnum = ArticleTypeEnum.valueOf(keyword.substring(1));
             search = articleDao.searchWithType(typeEnum.name(), limit, offset);
@@ -261,6 +264,7 @@ public class Serv4Web {
         return Uni.combine().all().unis(search.onItem().transform(article ->
                 SearchData.Item.newBuilder().setTitle(article.getTitle())
                         .setArticleId(article.getId())
+                        .setTypedesc(ArticleTypeEnum.valueOf(article.getArticleType()).getDesc())
                         .setType(article.getArticleType())
                         .setTitleImage(article.getTitleImage()).build()
         ).collect().asList(), count).combinedWith(objects ->

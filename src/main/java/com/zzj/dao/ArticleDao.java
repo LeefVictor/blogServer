@@ -5,6 +5,8 @@ import com.zzj.constants.ApplicationConst;
 import com.zzj.entity.Article;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
@@ -13,6 +15,8 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ArticleDao extends BaseDao<Article> {
 
+    private final Logger logger = LoggerFactory.getLogger(ArticleDao.class);
+
     public ArticleDao() {
         super(ApplicationConst.t_article);
     }
@@ -20,26 +24,27 @@ public class ArticleDao extends BaseDao<Article> {
     public Multi<Tuple> queryAllType() {
         return getMySQLPool().query("select article_type, count(*) as `count` from " + ApplicationConst.t_article + " group by article_type")
                 .execute().onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(row -> Tuple.of(row.getString("article_type"), row.getInteger("count")));
+                .onItem().transform(row -> Tuple.of(row.getString("article_type"), row.getInteger("count")))
+                .onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
 
     public Multi<Article> searchWithTag(String tag, int limit, int offset) {
         return getMySQLPool().preparedQuery(searchWithTagSql).execute(Tuple.of(tag, limit, offset))
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(this::transForm);
+                .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     public Multi<Article> searchWithType(String type, int limit, int offset) {
         return getMySQLPool().preparedQuery(searchWithTypeSql).execute(Tuple.of(type, limit, offset))
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(this::transForm);
+                .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     public Multi<Article> searchWithTitle(String keyword, int limit, int offset) {
         return getMySQLPool().preparedQuery(searchWithTitle).execute(Tuple.of(keyword, limit, offset))
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(this::transForm);
+                .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     public Uni<Integer> countWithTag(String tag) {

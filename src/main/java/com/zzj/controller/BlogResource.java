@@ -21,6 +21,7 @@ public class BlogResource {
     @GET
     @Produces("application/x-protobuf")
     @Path("/home/{page}")
+    @IPValid
     public Uni<byte[]> homeList(@PathParam("page") int page) {
         return serv4Web.homeList(new PageVO().setPage(page)).onItem().transform(homeList -> homeList.toByteArray());
     }
@@ -82,7 +83,6 @@ public class BlogResource {
 
 
     @GET
-    @IPValid
     @Produces("application/json")
     @Path("/frontConf")
     public Uni<JsonObject> comments() {
