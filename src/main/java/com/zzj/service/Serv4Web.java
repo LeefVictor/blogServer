@@ -145,7 +145,7 @@ public class Serv4Web {
     //详情页
     public Uni<ArticleOuterClass.Articles> detail(long articleId) {
         Uni<Article> article = articleDao.queryWithId(articleId,
-                "id", "title", "sub_title", "author", "title_image"
+                "id", "title", "sub_title", "author", "title_image", "article_type", "summary"
         );
 
         Uni<List<Contents>> contents = contentDao.queryContent(articleId);
@@ -159,6 +159,8 @@ public class Serv4Web {
             builder.setTitle(res.getTitle())
                     .setSubTitle(res.getSubTitle())
                     .setAuthor(res.getAuthor())
+                    .setArticleType(res.getArticleType())
+                    .setSummary(res.getSummary())
                     .setTitleImage(res.getTitleImage());
 
             for (Contents contents1 : contentsList) {
@@ -280,6 +282,7 @@ public class Serv4Web {
         ArticleOuterClass.Article.Builder builder = ArticleOuterClass.Article.newBuilder();
 
         builder.setType(ct.name());
+        builder.setId(content.getId());
 
         JsonObject json;
         switch (ct) {

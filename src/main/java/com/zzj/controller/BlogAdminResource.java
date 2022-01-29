@@ -1,8 +1,10 @@
 package com.zzj.controller;
 
 import com.zzj.service.Serv4Admin;
+import com.zzj.service.Serv4Web;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
 import org.jboss.resteasy.reactive.MultipartForm;
 
 import javax.inject.Inject;
@@ -21,11 +23,31 @@ public class BlogAdminResource {
     @Inject
     private Serv4Admin serv4Admin;
 
+    @Inject
+    private Serv4Web serv4Web;
+
     @GET
     @Produces("application/x-protobuf")
     @Path("/home/{page}")
     public Uni<byte[]> homeList(@PathParam("page") int page) {
         return serv4Admin.homeList(new PageVO().setPageSize(10).setPage(page)).onItem().transform(homeList -> homeList.toByteArray());
+    }
+
+
+    @GET
+    @Produces("application/x-protobuf")
+    @Path("/detail/{id}")
+    public Uni<byte[]> detail(@PathParam("id") long articleId) {
+        return serv4Web.detail(articleId).onItem().transform(detail -> detail.toByteArray());
+    }
+
+
+    @Path("/save")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Uni save(JsonObject jsonObject) {
+        return serv4Admin.save(jsonObject);
     }
 
 

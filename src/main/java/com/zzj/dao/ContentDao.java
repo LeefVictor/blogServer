@@ -4,15 +4,19 @@ import com.zzj.common.DelegateRow;
 import com.zzj.constants.ApplicationConst;
 import com.zzj.entity.Contents;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ContentDao extends BaseDao<Contents> {
+    private final Logger logger = LoggerFactory.getLogger(ContentDao.class);
 
     private final String queryContentWithArticleId =
             """
@@ -26,6 +30,8 @@ public class ContentDao extends BaseDao<Contents> {
                     ORDER BY
                     	ac.id ASC
                     """;
+
+    private final String insertContent = "INSERT INTO `contents` (`id`, `content_type`, `content`) VALUES (?,?,?) ON DUPLICATE KEY UPDATE content_type=?, content=?, version = version +1";
 
 
     public ContentDao() {
@@ -44,6 +50,35 @@ public class ContentDao extends BaseDao<Contents> {
 
                     return list;
                 });
+    }
+
+    public Uni<List<Long>> insertContent(List<Contents> contents) {
+        List<Uni<Long>> unis = new ArrayList<>();
+        for (Contents content : contents) {
+            Long cid = content.getId() == 0 ? null : content.getId();
+            unis.add(getMySQLPool().withConnection(conn ->
+                    conn.preparedQuery(insertContent)
+                            .execute(Tuple.of(cid, content.getContentType(), content.getContent(), content.getContentType(), content.getContent()))
+                            .onItem().transformToUni(rows -> {
+                                        if (content.getId() > 0) {
+                                            return Uni.createFrom().item(content.getId());
+                                        }
+                                        return conn.query("select LAST_INSERT_ID() as `id`").execute()
+                                                .onItem().transform(rr -> {
+                                                    Long id = 0L;
+                                                    for (Row row : rr) {
+                                                        id = row.getLong("id");
+                                                    }
+                                                    return id;
+                                                });
+                                    }
+
+                            )
+            ).onFailure().invoke(failure -> logger.error("保存异常", failure)));
+        }
+        return Uni.combine().all().unis(unis.toArray(new Uni[0])).combinedWith(objects -> objects.stream().map(o -> (Long) o).collect(Collectors.toList()));
+
+
     }
 
     @Override

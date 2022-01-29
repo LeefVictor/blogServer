@@ -1,15 +1,23 @@
 package com.zzj.service;
 
 import com.zzj.constants.ApplicationConst;
+import com.zzj.dao.Article2contentDao;
 import com.zzj.dao.ArticleDao;
+import com.zzj.dao.ContentDao;
+import com.zzj.entity.Article;
+import com.zzj.entity.Contents;
+import com.zzj.enums.ContentType;
 import com.zzj.vo.HomeListOuterClass;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,6 +26,12 @@ public class Serv4Admin {
 
     @Inject
     private ArticleDao articleDao;
+
+    @Inject
+    private Article2contentDao article2contentDao;
+
+    @Inject
+    private ContentDao contentDao;
 
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {
         HomeListOuterClass.HomeList.Builder builder = HomeListOuterClass.HomeList.newBuilder();
@@ -56,6 +70,74 @@ public class Serv4Admin {
         });
     }
 
+    public Uni save(JsonObject object) {
+        Article article = new Article()
+                .setId(Long.parseLong(object.getString("id", "0")))
+                .setTitle(object.getString("title"))
+                .setSubTitle(object.getString("subTitle"))
+                .setTitleImage(object.getString("titleImage"))
+                .setMainTag(1)
+                .setSummary(object.getString("summary"))
+                .setArticleType(object.getString("articleType"));
+
+        List<Contents> contents = new ArrayList<>();
+
+        JsonArray array = object.getJsonArray("contents");
+
+
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject obj = array.getJsonObject(i);
+            contents.add(solve(obj));
+        }
+
+        Uni<List<Long>> contentUni = contentDao.insertContent(contents);
+        Uni<Long> articleUni = articleDao.save(article);
+
+        List<Long> removeIds = new ArrayList<>();
+
+        if (object.containsKey("removeIds")) {
+            JsonArray array1 = object.getJsonArray("removeIds");
+
+            for (int i = 0; i < array1.size(); i++) {
+                removeIds.add(array1.getLong(i));
+            }
+        }
+
+        return Uni.combine().all().unis(contentUni, articleUni).combinedWith(objects -> {
+            System.out.println(objects);
+            return article2contentDao.save(((Long) objects.get(1)), (List<Long>) objects.get(0), removeIds).onItem().transform(o -> ((Long) objects.get(1)));
+        }).onItem().transformToUni(longUni -> longUni);
+    }
+
+    private Contents solve(JsonObject object) {
+        ContentType ct = ContentType.valueOf(object.getString("type"));
+
+        JsonObject jsonContent = object.getJsonObject("content");
+
+        Contents contents = new Contents();
+        Long id = jsonContent.getLong("id", 0L);
+        contents.setId(id == null ? 0 : id);
+        contents.setContentType(ct.name());
+
+        jsonContent.remove("id");
+        switch (ct) {
+            case text:
+                contents.setContent(jsonContent.getString("text"));
+                break;
+
+            case code:
+                jsonContent.put("language", "");
+                contents.setContent(jsonContent.toString());
+                break;
+            case block:
+            case group:
+            case photo:
+            case tab:
+                contents.setContent(jsonContent.toString());
+                break;
+        }
+        return contents;
+    }
 
     private int count2TotalPage(int integer, int pageSize) {
         return integer / pageSize + (integer % pageSize == 0 ? 0 : 1);

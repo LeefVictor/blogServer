@@ -11,6 +11,8 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class ArticleDao extends BaseDao<Article> {
@@ -62,6 +64,39 @@ public class ArticleDao extends BaseDao<Article> {
                 .onItem().transform(super::transToCount);
     }
 
+    public Uni<Long> save(Article article) {
+        List params = new ArrayList();
+        params.add(article.getId() == 0 ? null : article.getId());
+        params.add(article.getTitle());
+        params.add(article.getTitleImage());
+        params.add(article.getArticleType());
+        params.add(article.getAuthor() == null ? "梓健_(:з」∠)_" : article.getAuthor());
+        params.add(article.getSummary());
+        params.add(article.getSubTitle());
+        params.add(article.getTitle());
+        params.add(article.getTitleImage());
+        params.add(article.getArticleType());
+        params.add(article.getAuthor() == null ? "梓健_(:з」∠)_" : article.getAuthor());
+        params.add(article.getSummary());
+        params.add(article.getSubTitle());
+
+        return getMySQLPool().withTransaction(conn ->
+                conn.preparedQuery(insertArticle).execute(Tuple.from(params)).onItem().transformToUni(rows -> {
+                    if (article.getId() > 0) {
+                        return Uni.createFrom().item(article.getId());
+                    }
+                    return conn.query("select LAST_INSERT_ID() as `id`").execute()
+                            .onItem().transform(rr -> {
+                                Long id = 0L;
+                                for (Row row : rr) {
+                                    id = row.getLong("id");
+                                }
+                                return id;
+                            });
+                })
+        ).onFailure().invoke(failure -> logger.error("保存异常", failure));
+    }
+
 
     @Override
     public Article transForm(Row row) {
@@ -83,15 +118,18 @@ public class ArticleDao extends BaseDao<Article> {
                 .setCommentCount(delegateRow.getIntCol("comment_count"));
     }
 
+    private final String insertArticle = "INSERT INTO `articles` (`id`, `title`, `title_image`, `article_type`, `author`, `summary`, `sub_title`) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE title=?,title_image=?,article_type = ?,author=?,summary=?,sub_title=?,version = version+1";
+
+
     private static final String searchWithTagSql =
             """
-                   SELECT
-                    a.id,a.title,a.article_type,a.title_image
-                   FROM
-                   articles a left join 
-                    articles2tags
-                    at on a.id = at.article_id LEFT JOIN tags t ON AT.tag_id = t.id 
-                   WHERE
+                    SELECT
+                     a.id,a.title,a.article_type,a.title_image
+                    FROM
+                    articles a left join 
+                     articles2tags
+                     at on a.id = at.article_id LEFT JOIN tags t ON AT.tag_id = t.id 
+                    WHERE
                     t.NAME = ? limit ?,?
                     """;
 
