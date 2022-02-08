@@ -1,14 +1,13 @@
 package com.zzj.service;
 
 import com.zzj.constants.ApplicationConst;
-import com.zzj.dao.Article2contentDao;
-import com.zzj.dao.ArticleDao;
-import com.zzj.dao.ContentDao;
-import com.zzj.dao.UploadImageDao;
+import com.zzj.dao.*;
 import com.zzj.entity.Article;
 import com.zzj.entity.Contents;
 import com.zzj.entity.UploadImage;
 import com.zzj.enums.ContentType;
+import com.zzj.utils.DateUtils;
+import com.zzj.vo.CommentOuterClass;
 import com.zzj.vo.HomeListOuterClass;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
@@ -40,6 +39,9 @@ public class Serv4Admin {
 
     @Inject
     private ContentDao contentDao;
+
+    @Inject
+    private CommentsDao commentsDao;
 
     @Inject
     private ConfService confService;
@@ -132,6 +134,26 @@ public class Serv4Admin {
         uploadImageDao.saveRecord(new UploadImage().setName(name).setWholeUrl(url)).subscribe().with(o -> {
             logger.info("保存图片上传记录成功");
         });
+    }
+
+    //评论,只加载未回复的
+    public Uni<CommentOuterClass.Comments> queryComments() {
+        return commentsDao.queryWithCondition("where hidden = 0 and reply_content is null ", Tuple.tuple())
+                .onItem().transform(comments -> {
+                    CommentOuterClass.Comment.Builder builder =
+                            CommentOuterClass.Comment.newBuilder();
+                    builder.setAuthor(comments.getNick())
+                            .setId(comments.getId())
+                            .setDate(DateUtils.transToYMD(comments.getCreateTime()))
+                            .setContent(comments.getContent());
+                    return builder.build();
+                }).collect().asList().onItem().transform(list -> CommentOuterClass.Comments.newBuilder().addAllArray(list).build());
+
+    }
+
+    //作者_(:з」∠)_
+    public Uni<Boolean> commentReply(long commentId, String replyContent, boolean sharp) {
+        return commentsDao.reply(commentId, replyContent, sharp);
     }
 
     private Contents solve(JsonObject object) {

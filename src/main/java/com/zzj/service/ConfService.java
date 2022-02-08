@@ -77,7 +77,7 @@ public class ConfService {
         });
     }
 
-    public Uni<Boolean> save(String name, String type, String value) {
+    public Uni<Boolean> save(String name, String value, String type) {
         return systemConfDao.save(name, value, type).onItem().transform(o -> {
             cache.put(name, value);
             return Boolean.TRUE;

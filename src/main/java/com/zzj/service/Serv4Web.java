@@ -184,7 +184,7 @@ public class Serv4Web {
 
                     if (!StringUtil.isNullOrEmpty(comments.getReplyContent())) {
                         builder.setReply(CommentOuterClass.Reply.newBuilder()
-                                .setAuthor("作者_(:з」∠)_")
+                                .setAuthor(confService.getConf(ApplicationConst.author_desc_conf))
                                 .setDate(DateUtils.transToYMD(comments.getReplyTime()))
                                 .setContent(comments.getReplyContent() == null ? "" : comments.getReplyContent()).build());
                     }

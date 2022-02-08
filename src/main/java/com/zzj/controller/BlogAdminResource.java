@@ -57,6 +57,21 @@ public class BlogAdminResource {
     }
 
     @GET
+    @Path("comments/list")
+    @Produces("application/x-protobuf")
+    @TokenInvalid
+    public Uni<byte[]> commentsList() {
+        return serv4Admin.queryComments().onItem().transform(comments -> comments.toByteArray());
+    }
+
+    @POST
+    @Path("comments/reply")
+    @TokenInvalid
+    public Uni<Boolean> commentsReply(@FormParam("id") long id, @FormParam("reply") String reply, @FormParam("sharp") boolean sharp) {
+        return serv4Admin.commentReply(id, reply, sharp);
+    }
+
+    @GET
     @Produces("application/x-protobuf")
     @Path("/home/{page}")
     @TokenInvalid

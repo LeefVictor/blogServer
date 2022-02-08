@@ -28,13 +28,19 @@ public class CommentsDao extends BaseDao<Comments> {
         return queryWithCondition(" where hidden = 0 order by id desc limit ?", Tuple.of(limit));
     }
 
-    public Multi<Comments> SharpComment(int limit){
+    public Multi<Comments> SharpComment(int limit) {
         return queryWithCondition(" where hidden = 0 and is_sharp = 1 order by id desc limit ?", Tuple.of(limit));
     }
 
     public Uni<Long> insertComments(long articleId, String nick, String email, String comment) {
         //因为LAST_INSERT_ID是基于Connection的,在同一个连接中确保获取id时的原子性
         return insertOne(insertComment, Tuple.of(articleId, nick, email, comment));
+    }
+
+    public Uni<Boolean> reply(long commentId, String replyContent, boolean sharpComment) {
+        return getMySQLPool().preparedQuery("update comments set reply_content=?, reply_time=now(), is_sharp=? where id = ?").execute(Tuple.of(replyContent, sharpComment ? 1 : 0, commentId)).onItem().transform(rows -> {
+            return Boolean.TRUE;
+        });
     }
 
 

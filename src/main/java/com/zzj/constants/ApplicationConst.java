@@ -15,6 +15,8 @@ public class ApplicationConst {
     public final static String original = "原创";
     public final static String reprinted = "转载";
 
+    public final static String author_desc_conf = "author_name";
+
     public final static String tokenConfName = "admin_token";
     public final static String imageSavePath = "image_save_path";
     public final static String imageServerUrl = "image_server_url";
