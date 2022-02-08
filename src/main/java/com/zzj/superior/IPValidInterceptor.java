@@ -1,7 +1,5 @@
 package com.zzj.superior;
 
-import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnels;
 import com.zzj.dao.BlackListDao;
 import com.zzj.exception.BlackIPException;
 import io.vertx.core.http.HttpServerRequest;
@@ -15,7 +13,8 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.core.Context;
-import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
 
 
 //不需要自动加黑名单，一来nginx限速每s5次，基本上杜绝了
@@ -27,9 +26,8 @@ public class IPValidInterceptor {
     private final Logger log = LoggerFactory.getLogger(IPValidInterceptor.class);
     @Context
     HttpServerRequest request;
-    //预期1w的量， 0.0001的误判率
-    private BloomFilter<String> filter = BloomFilter.create(
-            Funnels.stringFunnel(Charset.defaultCharset()), 100 * 100, 0.0001);
+    //guava的布隆过滤器在这里编译出现问题了， 就不用了
+    private final Set<String> filter = new HashSet<>(100);
     @Inject
     private BlackListDao blackListDao;
 
@@ -39,8 +37,7 @@ public class IPValidInterceptor {
     @AroundInvoke
     Object ipValidInterceptor(InvocationContext context) throws Exception {
         // ... before
-        String ip = getIp();
-        if (filter.mightContain(getIp())) {
+        if (filter.contains(getIp())) {
             throw new BlackIPException();
         }
         if (filterInit == 0) {
@@ -54,7 +51,7 @@ public class IPValidInterceptor {
     private void init() {
         blackListDao.queryWithCondition(" ", Tuple.tuple(), "ip")
                 .subscribe().with(blackList1 -> {
-                    filter.put(blackList1.getIp());
+                    filter.add(blackList1.getIp());
                 });
     }
 

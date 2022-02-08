@@ -51,7 +51,7 @@ public class Serv4Admin {
 
     //后端请求的token校验
     public Uni<Boolean> validateToken(String token) {
-        return confService.getConfUni(tokenConfName).onItem().transform(systemConf -> systemConf != null && token.equals(systemConf));
+        return confService.getConfUni(tokenConfName).onItem().transform(systemConf -> systemConf != null && systemConf.equals(token));
     }
 
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {

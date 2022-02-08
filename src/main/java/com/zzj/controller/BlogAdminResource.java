@@ -37,7 +37,7 @@ public class BlogAdminResource {
 
     @POST
     @Path("validate")
-    public Uni<Boolean> validate(@HeaderParam("auth_token") String token) {
+    public Uni<Boolean> validate(@HeaderParam("authToken") String token) {
         return serv4Admin.validateToken(token);
     }
 

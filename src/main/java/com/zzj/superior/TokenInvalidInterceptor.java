@@ -29,7 +29,8 @@ public class TokenInvalidInterceptor implements Serializable {
     @AroundInvoke
     Object tokenInvalidInterceptor(InvocationContext context) throws Exception {
         // ... before
-        Optional<String> optional = Optional.ofNullable(request.getHeader("auth_token"));
+        //TODO NGINX 不支持下划线的， 要注意，踩了坑了, 同时 413状态码时优先看下是不是nginx限制了， 加上client_max_body_size 4M;
+        Optional<String> optional = Optional.ofNullable(request.getHeader("authToken"));
         if (optional.isEmpty() || !confService.getConf(ApplicationConst.tokenConfName).equals(optional.get())) {
             throw new CcException("口令有误，请重新登录");
         }
