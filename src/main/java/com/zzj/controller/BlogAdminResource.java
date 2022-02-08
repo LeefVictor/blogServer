@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.UUID;
 
 import static com.zzj.constants.ApplicationConst.imageSavePath;
@@ -112,6 +113,7 @@ public class BlogAdminResource {
         File save = new File(confService.getConf(imageSavePath) + File.separator + fileName);
         Files.copy(formData.file.uploadedFile(), Paths.get(save.getAbsolutePath()));
         String src = confService.getConf(imageServerUrl) + fileName;
+        Files.setPosixFilePermissions(save.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
 
         //异步保存
         serv4Admin.saveUploadRecord(fileName, src);
