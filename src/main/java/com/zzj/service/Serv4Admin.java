@@ -4,12 +4,16 @@ import com.zzj.constants.ApplicationConst;
 import com.zzj.dao.Article2contentDao;
 import com.zzj.dao.ArticleDao;
 import com.zzj.dao.ContentDao;
+import com.zzj.dao.UploadImageDao;
 import com.zzj.entity.Article;
 import com.zzj.entity.Contents;
+import com.zzj.entity.UploadImage;
 import com.zzj.enums.ContentType;
 import com.zzj.vo.HomeListOuterClass;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -21,8 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.zzj.constants.ApplicationConst.tokenConfName;
+
 @ApplicationScoped
 public class Serv4Admin {
+
+    private final Logger logger = LoggerFactory.getLogger(Serv4Admin.class);
 
     @Inject
     private ArticleDao articleDao;
@@ -32,6 +40,17 @@ public class Serv4Admin {
 
     @Inject
     private ContentDao contentDao;
+
+    @Inject
+    private ConfService confService;
+
+    @Inject
+    private UploadImageDao uploadImageDao;
+
+    //后端请求的token校验
+    public Uni<Boolean> validateToken(String token) {
+        return confService.getConfUni(tokenConfName).onItem().transform(systemConf -> systemConf != null && token.equals(systemConf));
+    }
 
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {
         HomeListOuterClass.HomeList.Builder builder = HomeListOuterClass.HomeList.newBuilder();
@@ -107,6 +126,12 @@ public class Serv4Admin {
             System.out.println(objects);
             return article2contentDao.save(((Long) objects.get(1)), (List<Long>) objects.get(0), removeIds).onItem().transform(o -> ((Long) objects.get(1)));
         }).onItem().transformToUni(longUni -> longUni);
+    }
+
+    public void saveUploadRecord(String name, String url) {
+        uploadImageDao.saveRecord(new UploadImage().setName(name).setWholeUrl(url)).subscribe().with(o -> {
+            logger.info("保存图片上传记录成功");
+        });
     }
 
     private Contents solve(JsonObject object) {

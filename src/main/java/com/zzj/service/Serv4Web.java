@@ -4,7 +4,6 @@ import com.zzj.constants.ApplicationConst;
 import com.zzj.dao.*;
 import com.zzj.entity.Article;
 import com.zzj.entity.Contents;
-import com.zzj.entity.SystemConf;
 import com.zzj.enums.ArticleTypeEnum;
 import com.zzj.enums.ConfType;
 import com.zzj.enums.ContentType;
@@ -51,7 +50,7 @@ public class Serv4Web {
     private ContentDao contentDao;
 
     @Inject
-    private SystemConfDao systemConfDao;
+    private ConfService confService;
 
     //主页
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {
@@ -222,14 +221,7 @@ public class Serv4Web {
 
     //所需的前端配置，
     public Uni<JsonObject> getDefaultConf(ConfType type) {
-        return systemConfDao.queryWithCondition(" where type = ?", Tuple.of(type.name()), "name", "value")
-                .collect().asList().onItem().transform(systemConfs -> {
-                    JsonObject jsonObject = new JsonObject();
-                    for (SystemConf conf : systemConfs) {
-                        jsonObject.put(conf.getName(), conf.getValue());
-                    }
-                    return jsonObject;
-                });
+        return confService.getDefaultConf(type);
     }
 
 
@@ -336,7 +328,7 @@ public class Serv4Web {
         return builder.build();
     }
 
-    private int count2TotalPage(int integer, int pageSize){
+    private int count2TotalPage(int integer, int pageSize) {
         return integer / pageSize + (integer % pageSize == 0 ? 0 : 1);
     }
 

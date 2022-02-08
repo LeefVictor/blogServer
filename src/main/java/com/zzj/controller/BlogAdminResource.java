@@ -1,9 +1,12 @@
 package com.zzj.controller;
 
+import com.zzj.service.ConfService;
 import com.zzj.service.Serv4Admin;
 import com.zzj.service.Serv4Web;
+import com.zzj.superior.TokenInvalid;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jboss.resteasy.reactive.MultipartForm;
 
@@ -17,6 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import static com.zzj.constants.ApplicationConst.imageSavePath;
+import static com.zzj.constants.ApplicationConst.imageServerUrl;
+
 @Path("admin")
 public class BlogAdminResource {
 
@@ -26,9 +32,34 @@ public class BlogAdminResource {
     @Inject
     private Serv4Web serv4Web;
 
+    @Inject
+    private ConfService confService;
+
+    @POST
+    @Path("validate")
+    public Uni<Boolean> validate(@HeaderParam("auth_token") String token) {
+        return serv4Admin.validateToken(token);
+    }
+
+    @GET
+    @Path("conf/list")
+    @Produces(MediaType.APPLICATION_JSON)
+    @TokenInvalid
+    public Uni<JsonArray> confList() {
+        return confService.allConf();
+    }
+
+    @POST
+    @Path("conf/save")
+    @TokenInvalid
+    public Uni<Boolean> confSave(@FormParam("name") String name, @FormParam("value") String value, @FormParam("type") String type) {
+        return confService.save(name, value, type);
+    }
+
     @GET
     @Produces("application/x-protobuf")
     @Path("/home/{page}")
+    @TokenInvalid
     public Uni<byte[]> homeList(@PathParam("page") int page) {
         return serv4Admin.homeList(new PageVO().setPageSize(10).setPage(page)).onItem().transform(homeList -> homeList.toByteArray());
     }
@@ -37,6 +68,7 @@ public class BlogAdminResource {
     @GET
     @Produces("application/x-protobuf")
     @Path("/detail/{id}")
+    @TokenInvalid
     public Uni<byte[]> detail(@PathParam("id") long articleId) {
         return serv4Web.detail(articleId).onItem().transform(detail -> detail.toByteArray());
     }
@@ -46,6 +78,7 @@ public class BlogAdminResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
+    @TokenInvalid
     public Uni save(JsonObject jsonObject) {
         return serv4Admin.save(jsonObject);
     }
@@ -56,23 +89,17 @@ public class BlogAdminResource {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response uploadFile(@HeaderParam("token") String token,
-                               @MultipartForm FormData formData) throws IOException { //TODO 这里的踩坑点 formData不能是内部类
-
+    @TokenInvalid
+    public Response uploadFile(@MultipartForm FormData formData) throws IOException { //TODO 这里的踩坑点 formData不能是内部类
         String suffix = formData.file.fileName().substring(formData.file.fileName().lastIndexOf("."));
-
         String fileName = UUID.randomUUID().toString().replaceAll("-", "")
                 .substring(0, 10) + suffix;
-
-        File save = new File("D:\\self-soft\\nginx-1.18.0\\html\\img\\" + fileName);
-
-
+        File save = new File(confService.getConf(imageSavePath) + File.separator + fileName);
         Files.copy(formData.file.uploadedFile(), Paths.get(save.getAbsolutePath()));
+        String src = confService.getConf(imageServerUrl) + fileName;
 
-        String src = "http://localhost/img/" + fileName;
-        //constructs upload file path
-
-
+        //异步保存
+        serv4Admin.saveUploadRecord(fileName, src);
         return Response.status(200)
                 .entity(src).build();
 

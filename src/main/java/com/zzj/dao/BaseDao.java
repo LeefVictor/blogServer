@@ -61,6 +61,37 @@ public abstract class BaseDao<T> {
                 .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
+    public Uni<T> queryOneWithCondition(String where, Tuple value, String... columns) {
+        return mySQLPool.preparedQuery(getQuerySql(where, columns)).execute(value)
+                .onItem().transform(rows -> {
+                    List<T> res = new ArrayList<>();
+                    for (Row row : rows) {
+                        res.add(transForm(row));
+                    }
+                    return res.size() == 0 ? null : res.get(0);
+                }).onFailure().invoke(failure -> logger.error("查询异常", failure));
+    }
+
+    public Uni<Long> insertOne(String sql, Tuple tuple) {
+        //因为LAST_INSERT_ID是基于Connection的,在同一个连接中确保获取id时的原子性
+        return getMySQLPool()
+                .withTransaction(sqlConnection ->
+                        sqlConnection.preparedQuery(sql).execute(tuple)
+                                .onItem().transformToUni(rows -> {
+                                    return sqlConnection.query("select LAST_INSERT_ID() as `id`").execute()
+                                            .onItem().transform(rr -> {
+                                                long id = 0;
+                                                for (Row row : rr) {
+                                                    id = row.getLong("id");
+                                                }
+                                                return id;
+                                            });
+                                })
+
+                );
+
+    }
+
     private String getQuerySql(String where, String... columns) {
         String sql = "select " + (columns == null || columns.length == 0 ? "*" : String.join(",", columns)) + " from " + tableName;
         sql = sql + judiceWhere(where);
@@ -69,7 +100,7 @@ public abstract class BaseDao<T> {
     }
 
     private String getCountSql(String where, Optional<String> countField) {
-        String sql = "select count(" + (countField.isPresent() ? countField:"id") + ") as `count`  from " + tableName;
+        String sql = "select count(" + (countField.isPresent() ? countField : "id") + ") as `count`  from " + tableName;
         sql = sql + judiceWhere(where);
         logger.debug(sql);
         return sql;
