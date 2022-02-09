@@ -137,7 +137,6 @@ public class Serv4Admin {
         }
 
         return Uni.combine().all().unis(contentUni, articleUni, saveTag).combinedWith(objects -> {
-            System.out.println(objects);
             return article2contentDao.save(((Long) objects.get(1)), (List<Long>) objects.get(0), removeIds).onItem().transform(o -> ((Long) objects.get(1)));
         }).onItem().transformToUni(longUni -> longUni);
     }

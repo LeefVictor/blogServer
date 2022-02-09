@@ -11,6 +11,7 @@ import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,9 @@ public class ContentDao extends BaseDao<Contents> {
     }
 
     public Uni<List<Long>> insertContent(List<Contents> contents) {
+        if (contents == null || contents.isEmpty()) {
+            return Uni.createFrom().item(Collections.emptyList());
+        }
         List<Uni<Long>> unis = new ArrayList<>();
         for (Contents content : contents) {
             Long cid = content.getId() == 0 ? null : content.getId();
@@ -60,9 +64,9 @@ public class ContentDao extends BaseDao<Contents> {
                     conn.preparedQuery(insertContent)
                             .execute(Tuple.of(cid, content.getContentType(), content.getContent(), content.getContentType(), content.getContent()))
                             .onItem().transformToUni(rows -> {
-                                        if (content.getId() > 0) {
-                                            return Uni.createFrom().item(content.getId());
-                                        }
+                                if (content.getId() > 0) {
+                                    return Uni.createFrom().item(content.getId());
+                                }
                                         return conn.query("select LAST_INSERT_ID() as `id`").execute()
                                                 .onItem().transform(rr -> {
                                                     Long id = 0L;

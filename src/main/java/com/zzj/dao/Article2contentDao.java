@@ -30,10 +30,9 @@ public class Article2contentDao extends BaseDao<Article2Contents> {
             contentIds.forEach(it -> params.add(Tuple.of(articleId, it, articleId, it)));
             logger.info("保存关系表" + articleId + "," + contentIds);
 
-            return conn.preparedQuery(insertSql).executeBatch(params).onItem().transform(rows -> Integer.valueOf(rows.size())).invoke(integer -> {
-                if (removeContentIds.isEmpty()) {
-                    return;
-                }
+            Uni<Integer> del = Uni.createFrom().item(1);
+            Uni<Integer> insert = Uni.createFrom().item(1);
+            if (!removeContentIds.isEmpty()) {
                 List tuples = new ArrayList();
                 tuples.add(articleId);
                 List<String> separ = new ArrayList<>();
@@ -41,9 +40,15 @@ public class Article2contentDao extends BaseDao<Article2Contents> {
                     separ.add("?");
                     tuples.add(removeContentIds.get(i));
                 }
-                conn.preparedQuery("delete from article2contents where article_id=? and content_id in (" + String.join(",", separ) + ")").execute(Tuple.from(tuples)).subscribe().with(c -> {
-                    logger.info("remove delete content" + removeContentIds);
-                });
+                del = conn.preparedQuery("delete from article2contents where article_id=? and content_id in (" + String.join(",", separ) + ")").execute(Tuple.from(tuples)).onItem().transform(rows -> Integer.valueOf(rows.size()));
+            }
+
+            if (!contentIds.isEmpty()) {
+                insert = conn.preparedQuery(insertSql).executeBatch(params).onItem().transform(rows -> Integer.valueOf(rows.size()));
+            }
+
+            return Uni.combine().all().unis(del, insert).combinedWith(o -> {
+                return (Integer) o.get(1);
             });
         }).onFailure().invoke(failure -> logger.error("保存异常", failure));
     }
