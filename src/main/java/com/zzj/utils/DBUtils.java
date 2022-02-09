@@ -11,7 +11,7 @@ public class DBUtils {
         Objects.requireNonNull(cond);
         List<String> res = new ArrayList<>(cond.size());
         cond.forEach(it -> res.add("?"));
-        return String.join(",", cond);
+        return String.join(",", res);
 
     }
 }

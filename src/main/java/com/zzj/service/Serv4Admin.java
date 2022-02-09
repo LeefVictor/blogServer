@@ -21,6 +21,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,6 +40,9 @@ public class Serv4Admin {
 
     @Inject
     private ContentDao contentDao;
+
+    @Inject
+    private Article2TagsDao article2TagsDao;
 
     @Inject
     private CommentsDao commentsDao;
@@ -105,6 +109,14 @@ public class Serv4Admin {
 
         JsonArray array = object.getJsonArray("contents");
 
+        Uni<Boolean> saveTag;
+        if (object.getString("articleTag") != null) {
+            String[] tabs = object.getString("articleTag").replaceAll("，", ",").split(",");
+            saveTag = article2TagsDao.saveConcats(Arrays.asList(tabs), article.getId());
+        } else {
+            saveTag = Uni.createFrom().item(Boolean.TRUE);
+        }
+
 
         for (int i = 0; i < array.size(); i++) {
             JsonObject obj = array.getJsonObject(i);
@@ -124,7 +136,7 @@ public class Serv4Admin {
             }
         }
 
-        return Uni.combine().all().unis(contentUni, articleUni).combinedWith(objects -> {
+        return Uni.combine().all().unis(contentUni, articleUni, saveTag).combinedWith(objects -> {
             System.out.println(objects);
             return article2contentDao.save(((Long) objects.get(1)), (List<Long>) objects.get(0), removeIds).onItem().transform(o -> ((Long) objects.get(1)));
         }).onItem().transformToUni(longUni -> longUni);

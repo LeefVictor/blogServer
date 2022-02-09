@@ -83,10 +83,8 @@ public final class ArticleOuterClass {
      * @return The titleImage.
      */
     java.lang.String getTitleImage();
-
     /**
      * <code>string titleImage = 5;</code>
-     *
      * @return The bytes for titleImage.
      */
     com.google.protobuf.ByteString
@@ -94,14 +92,11 @@ public final class ArticleOuterClass {
 
     /**
      * <code>string articleType = 6;</code>
-     *
      * @return The articleType.
      */
     java.lang.String getArticleType();
-
     /**
      * <code>string articleType = 6;</code>
-     *
      * @return The bytes for articleType.
      */
     com.google.protobuf.ByteString
@@ -109,7 +104,6 @@ public final class ArticleOuterClass {
 
     /**
      * <code>string summary = 7;</code>
-     *
      * @return The summary.
      */
     java.lang.String getSummary();
@@ -121,6 +115,38 @@ public final class ArticleOuterClass {
      */
     com.google.protobuf.ByteString
     getSummaryBytes();
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @return A list containing the tags.
+     */
+    java.util.List<java.lang.String>
+    getTagsList();
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @return The count of tags.
+     */
+    int getTagsCount();
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @param index The index of the element to return.
+     * @return The tags at the given index.
+     */
+    java.lang.String getTags(int index);
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @param index The index of the value to return.
+     * @return The bytes of the tags at the given index.
+     */
+    com.google.protobuf.ByteString
+    getTagsBytes(int index);
   }
 
   /**
@@ -136,7 +162,6 @@ public final class ArticleOuterClass {
     private Articles(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-
     private Articles() {
       title_ = "";
       subTitle_ = "";
@@ -145,6 +170,7 @@ public final class ArticleOuterClass {
       titleImage_ = "";
       articleType_ = "";
       summary_ = "";
+      tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -223,6 +249,15 @@ public final class ArticleOuterClass {
               summary_ = s;
               break;
             }
+            case 66: {
+              java.lang.String s = input.readStringRequireUtf8();
+              if (!((mutable_bitField0_ & 0x00000002) != 0)) {
+                tags_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              tags_.add(s);
+              break;
+            }
             default: {
               if (!parseUnknownField(
                       input, unknownFields, extensionRegistry, tag)) {
@@ -240,6 +275,9 @@ public final class ArticleOuterClass {
       } finally {
         if (((mutable_bitField0_ & 0x00000001) != 0)) {
           art_ = java.util.Collections.unmodifiableList(art_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) != 0)) {
+          tags_ = tags_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -452,10 +490,8 @@ public final class ArticleOuterClass {
 
     public static final int ARTICLETYPE_FIELD_NUMBER = 6;
     private volatile java.lang.Object articleType_;
-
     /**
      * <code>string articleType = 6;</code>
-     *
      * @return The articleType.
      */
     @java.lang.Override
@@ -471,10 +507,8 @@ public final class ArticleOuterClass {
         return s;
       }
     }
-
     /**
      * <code>string articleType = 6;</code>
-     *
      * @return The bytes for articleType.
      */
     @java.lang.Override
@@ -494,10 +528,8 @@ public final class ArticleOuterClass {
 
     public static final int SUMMARY_FIELD_NUMBER = 7;
     private volatile java.lang.Object summary_;
-
     /**
      * <code>string summary = 7;</code>
-     *
      * @return The summary.
      */
     @java.lang.Override
@@ -513,10 +545,8 @@ public final class ArticleOuterClass {
         return s;
       }
     }
-
     /**
      * <code>string summary = 7;</code>
-     *
      * @return The bytes for summary.
      */
     @java.lang.Override
@@ -532,6 +562,49 @@ public final class ArticleOuterClass {
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
+    }
+
+    public static final int TAGS_FIELD_NUMBER = 8;
+    private com.google.protobuf.LazyStringList tags_;
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @return A list containing the tags.
+     */
+    public com.google.protobuf.ProtocolStringList
+    getTagsList() {
+      return tags_;
+    }
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @return The count of tags.
+     */
+    public int getTagsCount() {
+      return tags_.size();
+    }
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @param index The index of the element to return.
+     * @return The tags at the given index.
+     */
+    public java.lang.String getTags(int index) {
+      return tags_.get(index);
+    }
+
+    /**
+     * <code>repeated string tags = 8;</code>
+     *
+     * @param index The index of the value to return.
+     * @return The bytes of the tags at the given index.
+     */
+    public com.google.protobuf.ByteString
+    getTagsBytes(int index) {
+      return tags_.getByteString(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -570,6 +643,9 @@ public final class ArticleOuterClass {
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(summary_)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 7, summary_);
       }
+      for (int i = 0; i < tags_.size(); i++) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 8, tags_.getRaw(i));
+      }
       unknownFields.writeTo(output);
     }
 
@@ -601,6 +677,14 @@ public final class ArticleOuterClass {
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(summary_)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, summary_);
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < tags_.size(); i++) {
+          dataSize += computeStringSizeNoTag(tags_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getTagsList().size();
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -630,6 +714,8 @@ public final class ArticleOuterClass {
               .equals(other.getArticleType())) return false;
       if (!getSummary()
               .equals(other.getSummary())) return false;
+      if (!getTagsList()
+              .equals(other.getTagsList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -657,6 +743,10 @@ public final class ArticleOuterClass {
       hash = (53 * hash) + getArticleType().hashCode();
       hash = (37 * hash) + SUMMARY_FIELD_NUMBER;
       hash = (53 * hash) + getSummary().hashCode();
+      if (getTagsCount() > 0) {
+        hash = (37 * hash) + TAGS_FIELD_NUMBER;
+        hash = (53 * hash) + getTagsList().hashCode();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -788,7 +878,6 @@ public final class ArticleOuterClass {
           getArtFieldBuilder();
         }
       }
-
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -810,6 +899,8 @@ public final class ArticleOuterClass {
 
         summary_ = "";
 
+        tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -852,6 +943,11 @@ public final class ArticleOuterClass {
         result.titleImage_ = titleImage_;
         result.articleType_ = articleType_;
         result.summary_ = summary_;
+        if (((bitField0_ & 0x00000002) != 0)) {
+          tags_ = tags_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.tags_ = tags_;
         onBuilt();
         return result;
       }
@@ -948,6 +1044,16 @@ public final class ArticleOuterClass {
         }
         if (!other.getSummary().isEmpty()) {
           summary_ = other.summary_;
+          onChanged();
+        }
+        if (!other.tags_.isEmpty()) {
+          if (tags_.isEmpty()) {
+            tags_ = other.tags_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureTagsIsMutable();
+            tags_.addAll(other.tags_);
+          }
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -1507,10 +1613,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>string titleImage = 5;</code>
-       *
        * @param value The bytes for titleImage to set.
        * @return This builder for chaining.
        */
@@ -1527,10 +1631,8 @@ public final class ArticleOuterClass {
       }
 
       private java.lang.Object articleType_ = "";
-
       /**
        * <code>string articleType = 6;</code>
-       *
        * @return The articleType.
        */
       public java.lang.String getArticleType() {
@@ -1545,10 +1647,8 @@ public final class ArticleOuterClass {
           return (java.lang.String) ref;
         }
       }
-
       /**
        * <code>string articleType = 6;</code>
-       *
        * @return The bytes for articleType.
        */
       public com.google.protobuf.ByteString
@@ -1564,10 +1664,8 @@ public final class ArticleOuterClass {
           return (com.google.protobuf.ByteString) ref;
         }
       }
-
       /**
        * <code>string articleType = 6;</code>
-       *
        * @param value The articleType to set.
        * @return This builder for chaining.
        */
@@ -1581,10 +1679,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>string articleType = 6;</code>
-       *
        * @return This builder for chaining.
        */
       public Builder clearArticleType() {
@@ -1593,10 +1689,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>string articleType = 6;</code>
-       *
        * @param value The bytes for articleType to set.
        * @return This builder for chaining.
        */
@@ -1613,10 +1707,8 @@ public final class ArticleOuterClass {
       }
 
       private java.lang.Object summary_ = "";
-
       /**
        * <code>string summary = 7;</code>
-       *
        * @return The summary.
        */
       public java.lang.String getSummary() {
@@ -1631,10 +1723,8 @@ public final class ArticleOuterClass {
           return (java.lang.String) ref;
         }
       }
-
       /**
        * <code>string summary = 7;</code>
-       *
        * @return The bytes for summary.
        */
       public com.google.protobuf.ByteString
@@ -1650,10 +1740,8 @@ public final class ArticleOuterClass {
           return (com.google.protobuf.ByteString) ref;
         }
       }
-
       /**
        * <code>string summary = 7;</code>
-       *
        * @param value The summary to set.
        * @return This builder for chaining.
        */
@@ -1667,10 +1755,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>string summary = 7;</code>
-       *
        * @return This builder for chaining.
        */
       public Builder clearSummary() {
@@ -1679,10 +1765,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>string summary = 7;</code>
-       *
        * @param value The bytes for summary to set.
        * @return This builder for chaining.
        */
@@ -1694,6 +1778,135 @@ public final class ArticleOuterClass {
         checkByteStringIsUtf8(value);
 
         summary_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+
+      private void ensureTagsIsMutable() {
+        if (!((bitField0_ & 0x00000002) != 0)) {
+          tags_ = new com.google.protobuf.LazyStringArrayList(tags_);
+          bitField0_ |= 0x00000002;
+        }
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @return A list containing the tags.
+       */
+      public com.google.protobuf.ProtocolStringList
+      getTagsList() {
+        return tags_.getUnmodifiableView();
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @return The count of tags.
+       */
+      public int getTagsCount() {
+        return tags_.size();
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param index The index of the element to return.
+       * @return The tags at the given index.
+       */
+      public java.lang.String getTags(int index) {
+        return tags_.get(index);
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param index The index of the value to return.
+       * @return The bytes of the tags at the given index.
+       */
+      public com.google.protobuf.ByteString
+      getTagsBytes(int index) {
+        return tags_.getByteString(index);
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param index The index to set the value at.
+       * @param value The tags to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTags(
+              int index, java.lang.String value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureTagsIsMutable();
+        tags_.set(index, value);
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param value The tags to add.
+       * @return This builder for chaining.
+       */
+      public Builder addTags(
+              java.lang.String value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureTagsIsMutable();
+        tags_.add(value);
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param values The tags to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllTags(
+              java.lang.Iterable<java.lang.String> values) {
+        ensureTagsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+                values, tags_);
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @return This builder for chaining.
+       */
+      public Builder clearTags() {
+        tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param value The bytes of the tags to add.
+       * @return This builder for chaining.
+       */
+      public Builder addTagsBytes(
+              com.google.protobuf.ByteString value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        checkByteStringIsUtf8(value);
+        ensureTagsIsMutable();
+        tags_.add(value);
         onChanged();
         return this;
       }
@@ -1825,7 +2038,6 @@ public final class ArticleOuterClass {
      * @return The group.
      */
     ArticleOuterClass.Group getGroup();
-
     /**
      * <code>.Group group = 6;</code>
      */
@@ -1833,18 +2045,14 @@ public final class ArticleOuterClass {
 
     /**
      * <code>.Photo photo = 7;</code>
-     *
      * @return Whether the photo field is set.
      */
     boolean hasPhoto();
-
     /**
      * <code>.Photo photo = 7;</code>
-     *
      * @return The photo.
      */
     ArticleOuterClass.Photo getPhoto();
-
     /**
      * <code>.Photo photo = 7;</code>
      */
@@ -1852,11 +2060,9 @@ public final class ArticleOuterClass {
 
     /**
      * <code>.Tab tab = 8;</code>
-     *
      * @return Whether the tab field is set.
      */
     boolean hasTab();
-
     /**
      * <code>.Tab tab = 8;</code>
      * @return The tab.
@@ -2263,7 +2469,6 @@ public final class ArticleOuterClass {
     public ArticleOuterClass.Photo getPhoto() {
       return photo_ == null ? ArticleOuterClass.Photo.getDefaultInstance() : photo_;
     }
-
     /**
      * <code>.Photo photo = 7;</code>
      */
@@ -2274,20 +2479,16 @@ public final class ArticleOuterClass {
 
     public static final int TAB_FIELD_NUMBER = 8;
     private ArticleOuterClass.Tab tab_;
-
     /**
      * <code>.Tab tab = 8;</code>
-     *
      * @return Whether the tab field is set.
      */
     @java.lang.Override
     public boolean hasTab() {
       return tab_ != null;
     }
-
     /**
      * <code>.Tab tab = 8;</code>
-     *
      * @return The tab.
      */
     @java.lang.Override
@@ -2597,7 +2798,6 @@ public final class ArticleOuterClass {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
@@ -3501,7 +3701,6 @@ public final class ArticleOuterClass {
         onChanged();
         return getTabFieldBuilder().getBuilder();
       }
-
       /**
        * <code>.Tab tab = 8;</code>
        */
@@ -3513,7 +3712,6 @@ public final class ArticleOuterClass {
                   ArticleOuterClass.Tab.getDefaultInstance() : tab_;
         }
       }
-
       /**
        * <code>.Tab tab = 8;</code>
        */
@@ -3531,18 +3729,15 @@ public final class ArticleOuterClass {
         return tabBuilder_;
       }
 
-      private long id_;
-
+      private long id_ ;
       /**
        * <code>int64 id = 9;</code>
-       *
        * @return The id.
        */
       @java.lang.Override
       public long getId() {
         return id_;
       }
-
       /**
        * <code>int64 id = 9;</code>
        * @param value The id to set.
@@ -7262,31 +7457,31 @@ public final class ArticleOuterClass {
 
   static {
     java.lang.String[] descriptorData = {
-            "\n\rArticle.proto\"\214\001\n\010Articles\022\r\n\005title\030\001 " +
+            "\n\rArticle.proto\"\232\001\n\010Articles\022\r\n\005title\030\001 " +
                     "\001(\t\022\020\n\010subTitle\030\002 \001(\t\022\016\n\006author\030\003 \001(\t\022\025\n" +
                     "\003art\030\004 \003(\0132\010.Article\022\022\n\ntitleImage\030\005 \001(\t" +
-                    "\022\023\n\013articleType\030\006 \001(\t\022\017\n\007summary\030\007 \001(\t\"\260" +
-                    "\001\n\007Article\022\014\n\004type\030\001 \001(\t\022\014\n\004text\030\002 \001(\t\022\023" +
-                    "\n\013blockauthor\030\003 \001(\t\022\025\n\rblockfromsite\030\004 \001" +
-                    "(\t\022\020\n\010language\030\005 \001(\t\022\025\n\005group\030\006 \001(\0132\006.Gr" +
-                    "oup\022\025\n\005photo\030\007 \001(\0132\006.Photo\022\021\n\003tab\030\010 \001(\0132" +
-                    "\004.Tab\022\n\n\002id\030\t \001(\003\"1\n\005Group\022\r\n\005title\030\001 \001(" +
-                    "\t\022\031\n\005items\030\002 \003(\0132\n.GroupItem\")\n\tGroupIte" +
-                    "m\022\r\n\005title\030\001 \001(\t\022\r\n\005bodys\030\002 \003(\t\"1\n\005Photo" +
-                    "\022\016\n\006author\030\001 \001(\t\022\013\n\003src\030\002 \001(\t\022\013\n\003alt\030\003 \001" +
-                    "(\t\"4\n\003Tab\022\r\n\005title\030\001 \001(\t\022\017\n\007headers\030\002 \003(" +
-                    "\t\022\r\n\005bodys\030\003 \003(\tb\006proto3"
+                    "\022\023\n\013articleType\030\006 \001(\t\022\017\n\007summary\030\007 \001(\t\022\014" +
+                    "\n\004tags\030\010 \003(\t\"\260\001\n\007Article\022\014\n\004type\030\001 \001(\t\022\014" +
+                    "\n\004text\030\002 \001(\t\022\023\n\013blockauthor\030\003 \001(\t\022\025\n\rblo" +
+                    "ckfromsite\030\004 \001(\t\022\020\n\010language\030\005 \001(\t\022\025\n\005gr" +
+                    "oup\030\006 \001(\0132\006.Group\022\025\n\005photo\030\007 \001(\0132\006.Photo" +
+                    "\022\021\n\003tab\030\010 \001(\0132\004.Tab\022\n\n\002id\030\t \001(\003\"1\n\005Group" +
+                    "\022\r\n\005title\030\001 \001(\t\022\031\n\005items\030\002 \003(\0132\n.GroupIt" +
+                    "em\")\n\tGroupItem\022\r\n\005title\030\001 \001(\t\022\r\n\005bodys\030" +
+                    "\002 \003(\t\"1\n\005Photo\022\016\n\006author\030\001 \001(\t\022\013\n\003src\030\002 " +
+                    "\001(\t\022\013\n\003alt\030\003 \001(\t\"4\n\003Tab\022\r\n\005title\030\001 \001(\t\022\017" +
+                    "\n\007headers\030\002 \003(\t\022\r\n\005bodys\030\003 \003(\tb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
             .internalBuildGeneratedFileFrom(descriptorData,
-                    new com.google.protobuf.Descriptors.FileDescriptor[]{
+                    new com.google.protobuf.Descriptors.FileDescriptor[] {
                     });
     internal_static_Articles_descriptor =
             getDescriptor().getMessageTypes().get(0);
     internal_static_Articles_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
             internal_static_Articles_descriptor,
-            new java.lang.String[]{"Title", "SubTitle", "Author", "Art", "TitleImage", "ArticleType", "Summary",});
+            new java.lang.String[] { "Title", "SubTitle", "Author", "Art", "TitleImage", "ArticleType", "Summary", "Tags", });
     internal_static_Article_descriptor =
             getDescriptor().getMessageTypes().get(1);
     internal_static_Article_fieldAccessorTable = new

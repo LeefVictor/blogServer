@@ -1,15 +1,15 @@
 package com.zzj.entity;
 
-public class Article2Tags extends SuperEntity<Article2Tags>{
-    private long tagId;
+public class Article2Tags extends SuperEntity<Article2Tags> {
+    private String tag;
     private long articleId;
 
-    public long getTagId() {
-        return tagId;
+    public String getTag() {
+        return tag;
     }
 
-    public Article2Tags setTagId(long tagId) {
-        this.tagId = tagId;
+    public Article2Tags setTag(String tag) {
+        this.tag = tag;
         return this;
     }
 

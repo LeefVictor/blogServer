@@ -4,11 +4,10 @@ public class ApplicationConst {
 
     public final static String t_article = "articles";
     public final static String t_article2content = "article2contents";
-    public final static String t_article2tags = "article2tags";
+    public final static String t_article2tags = "articles2tags";
     public final static String t_comments = "comments";
     public final static String t_contents = "contents";
     public final static String t_system_conf = "system_conf";
-    public final static String t_tags = "tags";
     public final static String t_uploadPhoto = "upload_image";
     public final static String t_blackList = "black_list";
 

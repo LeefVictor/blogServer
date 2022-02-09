@@ -3,6 +3,7 @@ package com.zzj.service;
 import com.zzj.constants.ApplicationConst;
 import com.zzj.dao.*;
 import com.zzj.entity.Article;
+import com.zzj.entity.Article2Tags;
 import com.zzj.entity.Contents;
 import com.zzj.enums.ArticleTypeEnum;
 import com.zzj.enums.ConfType;
@@ -44,10 +45,10 @@ public class Serv4Web {
     private UploadImageDao uploadImageDao;
 
     @Inject
-    private TagsDao tagsDao;
+    private ContentDao contentDao;
 
     @Inject
-    private ContentDao contentDao;
+    private Article2TagsDao article2TagsDao;
 
     @Inject
     private ConfService confService;
@@ -135,9 +136,9 @@ public class Serv4Web {
     //博客标签，
     @CacheIt
     public Uni<List<RightSideListOuterClass.Tags>> tags() {
-        return tagsDao.queryTags(20)
-                .onItem().transform(tags -> RightSideListOuterClass.Tags.newBuilder().setId(((Long) tags.getId()).intValue())
-                        .setName(tags.getName()).build()).collect().asList();
+        return article2TagsDao.queryTags(20)
+                .onItem().transform(tags -> RightSideListOuterClass.Tags.newBuilder().setId(-1)
+                        .setName(tags.getTag()).build()).collect().asList();
     }
 
 
@@ -149,7 +150,10 @@ public class Serv4Web {
 
         Uni<List<Contents>> contents = contentDao.queryContent(articleId);
 
-        return Uni.combine().all().unis(article, contents).combinedWith(objects -> {
+
+        Uni<List<String>> tags = article2TagsDao.queryTags(articleId).onItem().transform(Article2Tags::getTag).collect().asList();
+
+        return Uni.combine().all().unis(article, contents, tags).combinedWith(objects -> {
             ArticleOuterClass.Articles.Builder builder = ArticleOuterClass.Articles.newBuilder();
 
             Article res = (Article) objects.get(0);
@@ -164,6 +168,10 @@ public class Serv4Web {
 
             for (Contents contents1 : contentsList) {
                 builder.addArt(solve(contents1));
+            }
+
+            if (tags != null) {
+                builder.addAllTags((List<String>) objects.get(2));
             }
 
 

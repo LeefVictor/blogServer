@@ -128,9 +128,9 @@ public class ArticleDao extends BaseDao<Article> {
                     FROM
                     articles a left join 
                      articles2tags
-                     at on a.id = at.article_id LEFT JOIN tags t ON AT.tag_id = t.id 
+                     at on a.id = at.article_id 
                     WHERE
-                    t.NAME = ? limit ?,?
+                    at.tag = ? limit ?,?
                     """;
 
     private static final String searchWithTypeSql =
@@ -153,14 +153,14 @@ public class ArticleDao extends BaseDao<Article> {
 
     private static final String countWithTagSql =
             """
-                   SELECT
-                    count(distinct at.article_id)
-                   FROM
-                    articles2tags
-                    at  LEFT JOIN tags t ON AT.tag_id = t.id 
-                   WHERE
-                    t.NAME = ? 
-                    """;
+                    SELECT
+                     count(distinct at.article_id)
+                    FROM
+                     articles2tags
+                     at  
+                    WHERE
+                     at.tag = ? 
+                     """;
 
     private static final String countWithTypeSql =
             """
