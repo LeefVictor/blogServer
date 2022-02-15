@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import static com.zzj.constants.ApplicationConst.author_desc_conf;
 import static com.zzj.constants.ApplicationConst.tokenConfName;
 
 @ApplicationScoped
@@ -103,20 +104,12 @@ public class Serv4Admin {
                 .setTitleImage(object.getString("titleImage"))
                 .setMainTag(1)
                 .setSummary(object.getString("summary"))
-                .setArticleType(object.getString("articleType"));
+                .setArticleType(object.getString("articleType"))
+                .setAuthor(confService.getConf(author_desc_conf));
 
         List<Contents> contents = new ArrayList<>();
 
         JsonArray array = object.getJsonArray("contents");
-
-        Uni<Boolean> saveTag;
-        if (object.getString("articleTag") != null) {
-            String[] tabs = object.getString("articleTag").replaceAll("，", ",").split(",");
-            saveTag = article2TagsDao.saveConcats(Arrays.asList(tabs), article.getId());
-        } else {
-            saveTag = Uni.createFrom().item(Boolean.TRUE);
-        }
-
 
         for (int i = 0; i < array.size(); i++) {
             JsonObject obj = array.getJsonObject(i);
@@ -136,7 +129,16 @@ public class Serv4Admin {
             }
         }
 
-        return Uni.combine().all().unis(contentUni, articleUni, saveTag).combinedWith(objects -> {
+        String[] tags = null;
+        if (object.getString("articleTag") != null) {
+            tags = object.getString("articleTag").replaceAll("，", ",").split(",");
+        }
+
+        String[] finalTags = tags;
+        return Uni.combine().all().unis(contentUni, articleUni).combinedWith(objects -> {
+            if (finalTags != null) {
+                article2TagsDao.saveConcats(Arrays.asList(finalTags), ((Long) objects.get(1)));
+            }
             return article2contentDao.save(((Long) objects.get(1)), (List<Long>) objects.get(0), removeIds).onItem().transform(o -> ((Long) objects.get(1)));
         }).onItem().transformToUni(longUni -> longUni);
     }
