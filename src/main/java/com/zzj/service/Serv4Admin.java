@@ -137,7 +137,7 @@ public class Serv4Admin {
         String[] finalTags = tags;
         return Uni.combine().all().unis(contentUni, articleUni).combinedWith(objects -> {
             if (finalTags != null) {
-                article2TagsDao.saveConcats(Arrays.asList(finalTags), ((Long) objects.get(1)));
+                article2TagsDao.saveConcats(Arrays.asList(finalTags), ((Long) objects.get(1))).subscribe().with(aBoolean -> logger.info("save tag success"));
             }
             return article2contentDao.save(((Long) objects.get(1)), (List<Long>) objects.get(0), removeIds).onItem().transform(o -> ((Long) objects.get(1)));
         }).onItem().transformToUni(longUni -> longUni);
