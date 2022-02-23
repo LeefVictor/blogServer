@@ -150,6 +150,7 @@ public class Serv4Web {
 
         Uni<List<Contents>> contents = contentDao.queryContent(articleId);
 
+        articleDao.addOneView(articleId);
 
         Uni<List<String>> tags = article2TagsDao.queryTags(articleId).onItem().transform(Article2Tags::getTag).collect().asList();
 

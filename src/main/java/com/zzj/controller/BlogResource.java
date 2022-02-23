@@ -55,7 +55,7 @@ public class BlogResource {
     @Path("/search")
     public Uni<byte[]> search(@QueryParam("keyword") String keyword,
                               @QueryParam("page") int page) {
-        return serv4Web.search(keyword, new PageVO().setPage(page).setPageSize(3)).onItem().transform(search -> search.toByteArray());
+        return serv4Web.search(keyword, new PageVO().setPage(page).setPageSize(9)).onItem().transform(search -> search.toByteArray());
     }
 
 

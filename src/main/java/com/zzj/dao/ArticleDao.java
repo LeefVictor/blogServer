@@ -97,6 +97,12 @@ public class ArticleDao extends BaseDao<Article> {
         ).onFailure().invoke(failure -> logger.error("保存异常", failure));
     }
 
+    public void addOneView(long articleId) {
+        getMySQLPool().preparedQuery("update articles set love = love + 1 where id=?").execute(Tuple.of(articleId)).subscribe().with(o -> {
+            logger.debug("add one view with " + articleId);
+        });
+    }
+
 
     @Override
     public Article transForm(Row row) {
