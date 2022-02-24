@@ -31,7 +31,7 @@ public class Article2TagsDao extends BaseDao<Article2Tags> {
     private final String saveSql = "INSERT INTO `articles2tags` (`tag`, `article_id`) VALUES (?,?)  ON DUPLICATE KEY UPDATE version = version + 1 ";
 
     public Multi<Article2Tags> queryTags(int limit) {
-        return queryWithCondition(" order by id desc limit ?", Tuple.of(limit), " DISTINCT tag ", "id");
+        return queryWithCondition(" GROUP BY tag ORDER BY cc desc limit  ?", Tuple.of(limit), " tag ", " count(at.tag) as cc ");
     }
 
     public Multi<Article2Tags> queryTags(long articleId) {

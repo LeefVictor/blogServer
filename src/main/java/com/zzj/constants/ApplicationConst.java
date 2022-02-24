@@ -3,6 +3,7 @@ package com.zzj.constants;
 public class ApplicationConst {
 
     public final static String t_article = "articles";
+    public final static String t_anime = "anime";
     public final static String t_article2content = "article2contents";
     public final static String t_article2tags = "articles2tags";
     public final static String t_comments = "comments";
@@ -15,6 +16,7 @@ public class ApplicationConst {
     public final static String reprinted = "转载";
 
     public final static String author_desc_conf = "author_name";
+    public final static String anime_def_pic = "anime_def_pic";
 
     public final static String tokenConfName = "admin_token";
     public final static String imageSavePath = "image_save_path";

@@ -22,6 +22,12 @@ public class UploadImageDao extends BaseDao<UploadImage> {
                 , "id", "whole_url", "name");
     }
 
+    public Uni<String> queryWithName(String name) {
+        return queryWithCondition(" where name = ?", Tuple.of(name)
+                , "whole_url").onItem().transform(uploadImage -> uploadImage.getWholeUrl())
+                .collect().asList().onItem().transform(l -> l == null || l.isEmpty() ? null : l.get(0));
+    }
+
     public Uni saveRecord(UploadImage uploadImage) {
         return insertOne("INSERT INTO `upload_image` (`name`, `whole_url`) VALUES (?,?)", Tuple.of(uploadImage.getName(), uploadImage.getWholeUrl()));
     }

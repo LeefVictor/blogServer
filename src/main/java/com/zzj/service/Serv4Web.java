@@ -2,9 +2,8 @@ package com.zzj.service;
 
 import com.zzj.constants.ApplicationConst;
 import com.zzj.dao.*;
-import com.zzj.entity.Article;
-import com.zzj.entity.Article2Tags;
-import com.zzj.entity.Contents;
+import com.zzj.entity.Anime;
+import com.zzj.entity.*;
 import com.zzj.enums.ArticleTypeEnum;
 import com.zzj.enums.ConfType;
 import com.zzj.enums.ContentType;
@@ -25,6 +24,8 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.format.TextStyle;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,6 +53,10 @@ public class Serv4Web {
 
     @Inject
     private ConfService confService;
+
+    @Inject
+    private AnimeDao animeDao;
+
 
     //主页
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {
@@ -277,6 +282,65 @@ public class Serv4Web {
                         .addAllItems((List<SearchData.Item>) objects.get(0)).build());
     }
 
+
+    public Uni<com.zzj.vo.Anime.Search> animeSearch(String keyword, PageVO pageVO) {
+        int limit = (pageVO.getPage() - 1) * pageVO.getPageSize();
+        int offset = pageVO.getPageSize();
+        Multi<Anime> animeMulti = animeDao.query(keyword, limit, offset);
+        Uni<Integer> countUni = animeDao.countWithSearch(keyword);
+
+        return Uni.combine().all().unis(animeMulti.onItem().transform(anime ->
+                        com.zzj.vo.Anime.BaseProp.newBuilder().setFinish(anime.getIsFinish())
+                                .setImgurl(anime.getImageUrl())
+                                .setId(anime.getId())
+                                .setTotal(anime.getTotal())
+                                .addAllSiteNames(new HashSet<>(Arrays.asList(anime.getSiteName().split(",")))) //来源站点
+                                .setName(anime.getName()).build()
+                ).collect().asList()
+                , countUni).combinedWith(objects ->
+                com.zzj.vo.Anime.Search.newBuilder()
+                        .setPage(pageVO.getPage())
+                        .setTotalPage(count2TotalPage((int) objects.get(1), pageVO.getPageSize()))
+                        .addAllBase(((List<com.zzj.vo.Anime.BaseProp>) objects.get(0))).build()
+        );
+    }
+
+
+    public Uni<com.zzj.vo.Anime.Detail> animeDetail(long id) {
+        Multi<Anime> animeMulti = animeDao.findAnimeById(id);
+        return animeMulti.collect().asList().onItem().transform(animes -> {
+            Anime first = animes.get(0);
+            com.zzj.vo.Anime.Detail.Builder builder = com.zzj.vo.Anime.Detail.newBuilder().setBase(
+                    com.zzj.vo.Anime.BaseProp.newBuilder().setFinish(first.getIsFinish())
+                            .setImgurl(first.getImageUrl())
+                            .setId(first.getId())
+                            .setTotal(first.getTotal())
+                            .setName(first.getName()));
+            for (Anime anime : animes) {
+                builder.addSites(com.zzj.vo.Anime.Site.newBuilder()
+                        .setName(anime.getSiteName())
+                        .setEpisode(anime.getEpisode())
+                        .setUrl(anime.getUrl())
+                );
+            }
+            return builder.build();
+        });
+    }
+
+    public Uni<String> queryImgWithName(String name) {
+        return uploadImageDao.queryWithName(name);
+    }
+
+    public void downloadImgAndUpdate(long id, String name, String url) {
+        uploadImageDao.saveRecord(new UploadImage().setName(name).setWholeUrl(url))
+                .subscribe().with(o -> {
+                    logger.info("保存图片上传记录成功");
+                });
+        animeDao.updateImgUrl(id, url).subscribe().with(o -> {
+            logger.info("更改图片记录成功," + id);
+        });
+        ;
+    }
 
     private ArticleOuterClass.Article solve(Contents content) {
         ContentType ct = ContentType.valueOf(content.getContentType());
