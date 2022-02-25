@@ -11,11 +11,15 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AnimeDao extends BaseDao<Anime> {
 
     private final Logger logger = LoggerFactory.getLogger(AnimeDao.class);
+
+    private final String update_sql = "update anime_base set image_url=?, download_img = 1, version = version + 1 where id = ?";
 
     public AnimeDao() {
         super(ApplicationConst.t_anime);
@@ -36,13 +40,26 @@ public class AnimeDao extends BaseDao<Anime> {
     }
 
     public Multi<Anime> findAnimeById(long id) {
-        return queryWithCondition(" where base_id = ? order by update_time desc",
+        return queryWithCondition(" where id = ? order by update_time desc",
                 Tuple.of(id));
     }
 
     public Uni<Integer> updateImgUrl(long id, String url) {
-        return getMySQLPool().preparedQuery("update anime_base set image_url=? where id = ?")
+        return getMySQLPool().preparedQuery(update_sql)
                 .execute(Tuple.of(url, id)).onItem().transform(rows -> rows.size());
+    }
+
+    public Uni<Integer> updateImgUrls(List<Anime> anime) {
+        List<Tuple> tuples = anime.stream().map(m -> Tuple.of(m.getImageUrl(), m.getId())).collect(Collectors.toList());
+        return getMySQLPool().preparedQuery(update_sql)
+                .executeBatch(tuples).onItem().transform(rows -> rows.size());
+    }
+
+    public Multi<Anime> findUnDownloadImgData() {
+        return getMySQLPool().preparedQuery("select id, image_url from anime_base where download_img = ? limit ?")
+                .execute(Tuple.of(0, 100))
+                .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
 
     @Override

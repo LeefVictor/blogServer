@@ -57,6 +57,11 @@ public class ConfService {
         return Optional.ofNullable(cache.get(name)).orElseThrow();
     }
 
+    public boolean getBooleanConf(String name) {
+        String v = Optional.ofNullable(cache.get(name)).orElse("false");
+        return Boolean.parseBoolean(v);
+    }
+
     //所需的前端配置，
     public Uni<JsonObject> getDefaultConf(ConfType type) {
         return systemConfDao.queryWithCondition(" where type = ?", Tuple.of(type.name()), "name", "value")

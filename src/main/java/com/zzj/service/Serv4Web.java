@@ -339,7 +339,6 @@ public class Serv4Web {
         animeDao.updateImgUrl(id, url).subscribe().with(o -> {
             logger.info("更改图片记录成功," + id);
         });
-        ;
     }
 
     private ArticleOuterClass.Article solve(Contents content) {

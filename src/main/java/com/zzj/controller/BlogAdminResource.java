@@ -9,6 +9,8 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jboss.resteasy.reactive.MultipartForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -27,6 +29,7 @@ import static com.zzj.constants.ApplicationConst.imageServerUrl;
 @Path("admin")
 public class BlogAdminResource {
 
+    private Logger logger = LoggerFactory.getLogger(BlogAdminResource.class);
     @Inject
     private Serv4Admin serv4Admin;
 
@@ -113,7 +116,12 @@ public class BlogAdminResource {
         File save = new File(confService.getConf(imageSavePath) + File.separator + fileName);
         Files.copy(formData.file.uploadedFile(), Paths.get(save.getAbsolutePath()));
         String src = confService.getConf(imageServerUrl) + fileName;
-        Files.setPosixFilePermissions(save.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
+
+        try {
+            Files.setPosixFilePermissions(save.toPath(), PosixFilePermissions.fromString("rwxrwxrwx"));
+        } catch (IOException e) {
+            logger.error("更改权限操作失败，忽略", e);
+        }
 
         //异步保存
         serv4Admin.saveUploadRecord(fileName, src);

@@ -9,9 +9,13 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class UploadImageDao extends BaseDao<UploadImage> {
+
+    private final String insert_sql = "INSERT INTO `upload_image` (`name`, `whole_url`) VALUES (?,?)";
 
     public UploadImageDao() {
         super(ApplicationConst.t_uploadPhoto);
@@ -29,7 +33,12 @@ public class UploadImageDao extends BaseDao<UploadImage> {
     }
 
     public Uni saveRecord(UploadImage uploadImage) {
-        return insertOne("INSERT INTO `upload_image` (`name`, `whole_url`) VALUES (?,?)", Tuple.of(uploadImage.getName(), uploadImage.getWholeUrl()));
+        return insertOne(insert_sql, Tuple.of(uploadImage.getName(), uploadImage.getWholeUrl()));
+    }
+
+    public Uni saveRecords(List<UploadImage> uploadImages) {
+        List<Tuple> tuples = uploadImages.stream().map(m -> Tuple.of(m.getName(), m.getWholeUrl())).collect(Collectors.toList());
+        return getMySQLPool().preparedQuery(insert_sql).executeBatch(tuples).onItem().transform(rows -> Integer.valueOf(rows.size()));
     }
 
     @Override

@@ -21,6 +21,7 @@ public class ApplicationConst {
     public final static String tokenConfName = "admin_token";
     public final static String imageSavePath = "image_save_path";
     public final static String imageServerUrl = "image_server_url";
+    public final static String disable_download_timer = "disable_download_timer";
 
     public static String getMainTag(int mainTag) {
         return mainTag == 1 ? original : reprinted;
