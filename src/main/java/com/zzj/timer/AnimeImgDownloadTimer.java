@@ -24,6 +24,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.zzj.constants.ApplicationConst.*;
@@ -32,8 +33,9 @@ import static com.zzj.constants.ApplicationConst.*;
 public class AnimeImgDownloadTimer {
     private Logger logger = LoggerFactory.getLogger(AnimeImgDownloadTimer.class);
 
+    private final String defalutPicName = "default_anime_img";
 
-    private volatile int runing = 0;
+    private AtomicInteger running = new AtomicInteger(0);
 
     @Inject
     private ConfService confService;
@@ -51,31 +53,36 @@ public class AnimeImgDownloadTimer {
         if (confService.getBooleanConf(disable_download_timer)) {
             return;
         }
-        if (runing == 1) {
+        if (!running.compareAndSet(0, 1)) {
             return;
         }
-        runing = 1;
 
         animeDao.findUnDownloadImgData().onItem().transform(anime -> {
             String src = download(anime.getId(), anime.getImageUrl());
             anime.setImageUrl(src).setName("anime_" + anime.getId());
+            if (src.equals(confService.getConf(anime_def_pic))) {
+                anime.setName(defalutPicName); //因为下载失败的都是同一个默认图片，避免插入太多的相同冗余记录了
+            }
             return anime;
         }).collect().asList().subscribe().with(list -> {
             if (list != null && !list.isEmpty()) {
                 List<UploadImage> uploadImageList = list.stream()
+                        .filter(f -> !defalutPicName.equals(f.getName()))
                         .map(m -> new UploadImage().setName(m.getName()).setWholeUrl(m.getImageUrl())).collect(Collectors.toList());
-                uploadImageDao.saveRecords(uploadImageList)
-                        .subscribe().with(o -> {
-                            logger.info("更改图片记录成功," + o);
-                        });
+
+                if (!uploadImageList.isEmpty()) {
+                    uploadImageDao.saveRecords(uploadImageList)
+                            .subscribe().with(o -> {
+                                logger.info("更改图片记录成功," + o);
+                            });
+                }
 
                 animeDao.updateImgUrls(list).subscribe().with(o -> {
                     logger.info("更改图片记录成功," + o);
                 });
                 logger.info("done!!!");
             }
-
-            runing = 0;
+            running.set(0);
         });
     }
 
@@ -104,7 +111,6 @@ public class AnimeImgDownloadTimer {
                     } catch (IOException e) {
                         logger.error("更改权限操作失败，忽略", e);
                     }
-                    //TODO Files.setPosixFilePermissions(savePath, PosixFilePermissions.fromString("rwxrwxrwx"));
 
                 } catch (Exception e) {
                     logger.error("下载失败", e);

@@ -57,7 +57,7 @@ public class AnimeDao extends BaseDao<Anime> {
 
     public Multi<Anime> findUnDownloadImgData() {
         return getMySQLPool().preparedQuery("select id, image_url from anime_base where download_img = ? limit ?")
-                .execute(Tuple.of(0, 100))
+                .execute(Tuple.of(0, 10)) //量级不要太大， 因为单核的，占用太多的cpu会影响其他接口访问了
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem().transform(this::transForm).onFailure().invoke(failure -> logger.error("查询异常", failure));
     }
