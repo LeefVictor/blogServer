@@ -5,6 +5,7 @@ import com.zzj.dao.UploadImageDao;
 import com.zzj.entity.UploadImage;
 import com.zzj.service.ConfService;
 import io.quarkus.scheduler.Scheduled;
+import io.smallrye.mutiny.Uni;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,6 +25,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.zzj.constants.ApplicationConst.*;
@@ -58,11 +59,14 @@ public class AnimeImgDownloadTimer {
         }
 
         animeDao.findUnDownloadImgData().onItem().transform(anime -> {
-            String src = download(anime.getId(), anime.getImageUrl());
-            anime.setImageUrl(src).setName("anime_" + anime.getId());
-            if (src.equals(confService.getConf(anime_def_pic))) {
-                anime.setName(defalutPicName); //因为下载失败的都是同一个默认图片，避免插入太多的相同冗余记录了
-            }
+            //这里即使是异步任务，也会执行完这个transform才会继续下去， 不需要担心异步问题
+            download(anime.getId(), anime.getImageUrl(), src -> {
+                anime.setImageUrl(src).setName("anime_" + anime.getId());
+                if (src.equals(confService.getConf(anime_def_pic))) {
+                    anime.setName(defalutPicName); //因为下载失败的都是同一个默认图片，避免插入太多的相同冗余记录了
+                }
+                logger.info("download完毕" + anime.getId());
+            });
             return anime;
         }).collect().asList().subscribe().with(list -> {
             if (list != null && !list.isEmpty()) {
@@ -86,42 +90,43 @@ public class AnimeImgDownloadTimer {
         });
     }
 
-    private String download(long id, String url) {
-        String src = confService.getConf(anime_def_pic);
+    private void download(long id, String url, Consumer<String> onItemCallback) {
 
-        if (url == null) {
-            return src;
-        }
-
+        String defSrc = confService.getConf(anime_def_pic);
         String suffix = url.substring(url.lastIndexOf("."));
-        if (suffix != null && !suffix.trim().isEmpty()) {
-            String name = "anime/anime_" + id + suffix;
-            Path path = Paths.get(confService.getConf(imageSavePath) + File.separator + name);
-            if (!Files.exists(path)) {
+
+        String name = "anime/anime_" + id + suffix;
+        Path path = Paths.get(confService.getConf(imageSavePath) + File.separator + name);
+
+        Uni.createFrom().item(() -> {
+            if (url == null) {
+                return null;
+            }
+            try {
                 HttpClient client = HttpClient.newBuilder().build();
                 HttpRequest.Builder builder = HttpRequest.newBuilder();
+                builder.GET().uri(new URI(url));
+                return client.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).onItem().transform(in -> {
+            if (in == null) {
+                return defSrc;
+            }
+            if (!Files.exists(path)) {
                 try {
-                    builder.GET().uri(new URI(url));
-                    HttpResponse<InputStream> in = client.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
                     java.nio.file.Path savePath = Files.write(path,
                             in.body().readAllBytes(), StandardOpenOption.CREATE);
-                    src = confService.getConf(imageServerUrl) + name;
-                    try {
-                        Files.setPosixFilePermissions(savePath, PosixFilePermissions.fromString("rwxrwxrwx"));
-                    } catch (IOException e) {
-                        logger.error("更改权限操作失败，忽略", e);
-                    }
-
-                } catch (Exception e) {
-                    logger.error("下载失败", e);
+                    Files.setPosixFilePermissions(savePath, PosixFilePermissions.fromString("rwxrwxrwx"));
+                } catch (IOException e) {
+                    logger.error("文件写入操作失败，", e);
+                    return defSrc;
                 }
-            } else {
-                src = confService.getConf(imageServerUrl) + name;
             }
-
-        }
-
-        return src;
+            return confService.getConf(imageServerUrl) + name;
+        }).subscribe().with(onItemCallback);
     }
 
 }

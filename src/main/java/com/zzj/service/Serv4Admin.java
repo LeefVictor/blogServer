@@ -19,11 +19,9 @@ import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static com.zzj.constants.ApplicationConst.author_desc_conf;
 import static com.zzj.constants.ApplicationConst.tokenConfName;
@@ -83,7 +81,7 @@ public class Serv4Admin {
                                 .setTitle(article.getTitle())
                                 .setTitleImage(article.getTitleImage())
                                 .setYear((article.getCreateTime().getYear() + "").substring(2))
-                                .setMonth(article.getCreateTime().getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault()))
+                                .setMonth(DateUtils.getShortMonth(article.getCreateTime()))
                                 .setDay(article.getCreateTime().getDayOfMonth() + "")
                                 .build()
                 ).collect().asList();

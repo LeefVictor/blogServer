@@ -6,10 +6,14 @@ import java.util.Locale;
 
 public class DateUtils {
 
-    public static String transToYMD(LocalDateTime localDateTime){
+    public static String transToYMD(LocalDateTime localDateTime) {
         if (localDateTime == null) {
             return "";
         }
-        return localDateTime.getDayOfMonth() + "," + (localDateTime.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault())) + " " + localDateTime.getYear();
+        return localDateTime.getDayOfMonth() + "," + getShortMonth(localDateTime) + " " + localDateTime.getYear();
+    }
+
+    public static String getShortMonth(LocalDateTime localDateTime) {
+        return localDateTime.getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault());
     }
 }

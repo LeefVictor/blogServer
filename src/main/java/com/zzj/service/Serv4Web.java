@@ -23,11 +23,9 @@ import io.vertx.mutiny.sqlclient.Tuple;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.format.TextStyle;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @ApplicationScoped
@@ -83,7 +81,7 @@ public class Serv4Web {
                                 .setTitle(article.getTitle())
                                 .setTitleImage(article.getTitleImage())
                                 .setYear((article.getCreateTime().getYear() + "").substring(2))
-                                .setMonth(article.getCreateTime().getMonth().getDisplayName(TextStyle.SHORT, Locale.getDefault()))
+                                .setMonth(DateUtils.getShortMonth(article.getCreateTime()))
                                 .setDay(article.getCreateTime().getDayOfMonth() + "")
                                 .build()
                 ).collect().asList();
@@ -338,6 +336,33 @@ public class Serv4Web {
                 });
         animeDao.updateImgUrl(id, url).subscribe().with(o -> {
             logger.info("更改图片记录成功," + id);
+        });
+    }
+
+    //
+    public Uni<PicTimeline.Pics> queryUploadImage(int page) {
+        int limit = (page - 1) * 10;
+        int offset = 10;
+
+        Tuple tuple = Tuple.of(limit, offset);
+        //因为在大多数的time相同的情况下，order by time limit 会出现相同的情况， 所以用id作为排序基准
+        Uni<List<PicTimeline.Pic>> datas = uploadImageDao.queryWithCondition("where 1=1 order by id desc limit ?,?", tuple, "create_time", "whole_url")
+                .onItem().transform(uploadImage -> {
+                    LocalDateTime ct = uploadImage.getCreateTime();
+                    return PicTimeline.Pic.newBuilder().setSrc(uploadImage.getWholeUrl()).setDay(ct.getDayOfMonth() + "").setMonth(DateUtils.getShortMonth(ct)).setYear(ct.getYear() + "").build();
+                }).collect().asList();
+        Uni<Integer> count = uploadImageDao.count("where 1=1 order by id desc", Tuple.tuple());
+
+        return Uni.combine().all().unis(datas, count).combinedWith(objects -> {
+            Map<String, PicTimeline.PicsList.Builder> map = new LinkedHashMap<>(10);
+            for (PicTimeline.Pic pic : ((List<PicTimeline.Pic>) objects.get(0))) {
+                String dateTitle = pic.getYear() + " " + pic.getMonth();
+                PicTimeline.PicsList.Builder arrayBuilder = map.computeIfAbsent(dateTitle, k -> PicTimeline.PicsList.newBuilder());
+                arrayBuilder.setDateTitle(dateTitle).addData(pic);
+            }
+            boolean hasNext = page * offset < ((Integer) objects.get(1));
+
+            return PicTimeline.Pics.newBuilder().setHasNext(hasNext ? 1 : 0).addAllArray(map.values().stream().map(PicTimeline.PicsList.Builder::build).collect(Collectors.toList())).build();
         });
     }
 

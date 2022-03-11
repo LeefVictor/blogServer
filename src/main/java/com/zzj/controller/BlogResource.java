@@ -88,4 +88,11 @@ public class BlogResource {
     public Uni<JsonObject> comments() {
         return serv4Web.getDefaultConf(ConfType.front);
     }
+
+    @GET
+    @Produces("application/x-protobuf")
+    @Path("/pics/{page}")
+    public Uni<byte[]> pics(@PathParam("page") int page) {
+        return serv4Web.queryUploadImage(page).onItem().transform(pics -> pics.toByteArray());
+    }
 }
