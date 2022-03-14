@@ -11,11 +11,11 @@ import com.zzj.vo.CommentOuterClass;
 import com.zzj.vo.HomeListOuterClass;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,7 +63,7 @@ public class Serv4Admin {
         int offset = request.getPageSize();
         builder.setPage(request.getPage());
 
-        Uni<Integer> countUni = articleDao.count(" where hidden = 0 ", Tuple.tuple())
+        Uni<Integer> countUni = articleDao.count(" where 1=1 ", Tuple.tuple())
                 .onItem().transform(integer -> { //先转换为总页数
                     int total = 0;
                     if (integer != 0) {
@@ -72,7 +72,7 @@ public class Serv4Admin {
                     return total;
                 });
 
-        Uni<List<HomeListOuterClass.content>> contentUni = articleDao.queryWithCondition(" where hidden = 0 order by id desc limit ?,?", Tuple.of(limit, offset))
+        Uni<List<HomeListOuterClass.content>> contentUni = articleDao.queryWithCondition(" where 1=1 order by id desc limit ?,?", Tuple.of(limit, offset))
                 .onItem().transform(article ->
                         HomeListOuterClass.content.newBuilder()
                                 .setId(article.getId())
@@ -83,6 +83,7 @@ public class Serv4Admin {
                                 .setYear((article.getCreateTime().getYear() + "").substring(2))
                                 .setMonth(DateUtils.getShortMonth(article.getCreateTime()))
                                 .setDay(article.getCreateTime().getDayOfMonth() + "")
+                                .setHidden(article.getHidden())
                                 .build()
                 ).collect().asList();
 
@@ -103,6 +104,7 @@ public class Serv4Admin {
                 .setMainTag(1)
                 .setSummary(object.getString("summary"))
                 .setArticleType(object.getString("articleType"))
+                .setHidden(object.getInteger("hidden", 0))
                 .setAuthor(confService.getConf(author_desc_conf));
 
         List<Contents> contents = new ArrayList<>();

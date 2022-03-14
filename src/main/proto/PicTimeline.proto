@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+message Pics{
+  repeated PicsList array = 1;
+  int32 hasNext = 2;
+}
+
+message PicsList{
+  string dateTitle = 1;
+  repeated Pic data = 2;
+}
+
+message Pic{
+  string src = 1;
+  string day = 2;
+  string month = 3;
+  string year = 4;
+}

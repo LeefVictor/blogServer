@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+message blog {
+  int64 id = 1;
+  string title = 2;
+  //repeated 类比数组
+  //repeated x=3;
+  content content = 3;
+  int32 datetime = 4;
+}
+
+message content {
+  string text = 1;
+  string img = 2;
+}
+
+//编译命令
+//protoc --java_out=/d/protobufspace/out/java  --proto_path=./ blogList.proto 这里注意./后有个空格
+
+
+//js的就用这个命令，编译为 commonjs 类型的文件
+//protoc --js_out=import_style=commonjs,binary:. HomeList.proto

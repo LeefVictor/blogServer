@@ -15,11 +15,11 @@ import com.zzj.vo.request.PageVO;
 import io.netty.util.internal.StringUtil;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -116,7 +116,6 @@ public class Serv4Web {
     }
 
     //新图
-    @CacheIt
     public Uni<List<RightSideListOuterClass.Photo>> latestPhoto() {
         return uploadImageDao.getLatest(6)
                 .onItem().transform(uploadImage -> RightSideListOuterClass.Photo.newBuilder().setSrc(uploadImage.getWholeUrl())
@@ -148,7 +147,7 @@ public class Serv4Web {
     //详情页
     public Uni<ArticleOuterClass.Articles> detail(long articleId) {
         Uni<Article> article = articleDao.queryWithId(articleId,
-                "id", "title", "sub_title", "author", "title_image", "article_type", "summary"
+                "id", "title", "sub_title", "author", "title_image", "article_type", "summary", "hidden"
         );
 
         Uni<List<Contents>> contents = contentDao.queryContent(articleId);
@@ -168,6 +167,7 @@ public class Serv4Web {
                     .setAuthor(res.getAuthor())
                     .setArticleType(res.getArticleType())
                     .setSummary(res.getSummary())
+                    .setHidden(res.getHidden())
                     .setTitleImage(res.getTitleImage());
 
             for (Contents contents1 : contentsList) {
@@ -219,6 +219,7 @@ public class Serv4Web {
 
 
     //锐评
+    @CacheIt
     public Uni<SharpCommentOuterClass.SharpComments> getSharpComments() {
         return commentsDao.queryWithCondition("where is_sharp = 1 and hidden = 0  ", Tuple.tuple(), "article_id", "content", "nick")
                 .onItem().transform(comments ->

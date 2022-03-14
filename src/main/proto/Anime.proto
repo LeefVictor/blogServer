@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+message Search{
+  repeated BaseProp base = 1;
+  int32 totalPage = 2;
+  int32 page = 3;
+}
+
+message Detail{
+  BaseProp base = 1;
+  repeated Site sites = 2;
+}
+
+message BaseProp{
+  int64 id = 1;
+  string name = 2;
+  string imgurl = 3;
+  int32 total = 4;
+  int32 finish = 5;
+  repeated string siteNames = 6;
+}
+
+message Site{
+  string name = 1;
+  int32 episode = 2;
+  string url = 3;
+}

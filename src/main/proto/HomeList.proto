@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+
+message HomeList{
+  repeated content array = 1;
+  int32 page = 2;
+  int32 totalPage = 3;
+}
+
+message content{
+  int64 id = 1;
+  string titleImage = 2;
+  string day = 3;
+  string month = 4;
+  string year = 5;
+  string author = 6;
+  string title = 7;
+  string summary = 8;
+  string mainTag = 9;
+  int32 love = 10;
+  int32 commentNum = 11;
+  int32 hidden = 12;
+}

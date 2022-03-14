@@ -107,10 +107,8 @@ public final class ArticleOuterClass {
      * @return The summary.
      */
     java.lang.String getSummary();
-
     /**
      * <code>string summary = 7;</code>
-     *
      * @return The bytes for summary.
      */
     com.google.protobuf.ByteString
@@ -118,48 +116,50 @@ public final class ArticleOuterClass {
 
     /**
      * <code>repeated string tags = 8;</code>
-     *
      * @return A list containing the tags.
      */
     java.util.List<java.lang.String>
     getTagsList();
-
     /**
      * <code>repeated string tags = 8;</code>
-     *
      * @return The count of tags.
      */
     int getTagsCount();
-
     /**
      * <code>repeated string tags = 8;</code>
-     *
      * @param index The index of the element to return.
      * @return The tags at the given index.
      */
     java.lang.String getTags(int index);
 
-    /**
-     * <code>repeated string tags = 8;</code>
-     *
-     * @param index The index of the value to return.
-     * @return The bytes of the tags at the given index.
-     */
-    com.google.protobuf.ByteString
-    getTagsBytes(int index);
+      /**
+       * <code>repeated string tags = 8;</code>
+       *
+       * @param index The index of the value to return.
+       * @return The bytes of the tags at the given index.
+       */
+      com.google.protobuf.ByteString
+      getTagsBytes(int index);
+
+      /**
+       * <code>int32 hidden = 9;</code>
+       *
+       * @return The hidden.
+       */
+      int getHidden();
   }
 
-  /**
-   * Protobuf type {@code Articles}
-   */
-  public static final class Articles extends
-          com.google.protobuf.GeneratedMessageV3 implements
-          // @@protoc_insertion_point(message_implements:Articles)
-          ArticlesOrBuilder {
-    private static final long serialVersionUID = 0L;
+    /**
+     * Protobuf type {@code Articles}
+     */
+    public static final class Articles extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:Articles)
+            ArticlesOrBuilder {
+        private static final long serialVersionUID = 0L;
 
-    // Use Articles.newBuilder() to construct.
-    private Articles(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        // Use Articles.newBuilder() to construct.
+        private Articles(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private Articles() {
@@ -246,23 +246,28 @@ public final class ArticleOuterClass {
             case 58: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              summary_ = s;
-              break;
+                summary_ = s;
+                break;
             }
-            case 66: {
-              java.lang.String s = input.readStringRequireUtf8();
-              if (!((mutable_bitField0_ & 0x00000002) != 0)) {
-                tags_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000002;
+              case 66: {
+                  java.lang.String s = input.readStringRequireUtf8();
+                  if (!((mutable_bitField0_ & 0x00000002) != 0)) {
+                      tags_ = new com.google.protobuf.LazyStringArrayList();
+                      mutable_bitField0_ |= 0x00000002;
+                  }
+                  tags_.add(s);
+                  break;
               }
-              tags_.add(s);
-              break;
-            }
-            default: {
-              if (!parseUnknownField(
-                      input, unknownFields, extensionRegistry, tag)) {
-                done = true;
+              case 72: {
+
+                  hidden_ = input.readInt32();
+                  break;
               }
+              default: {
+                  if (!parseUnknownField(
+                          input, unknownFields, extensionRegistry, tag)) {
+                      done = true;
+                  }
               break;
             }
           }
@@ -566,54 +571,61 @@ public final class ArticleOuterClass {
 
     public static final int TAGS_FIELD_NUMBER = 8;
     private com.google.protobuf.LazyStringList tags_;
-
     /**
      * <code>repeated string tags = 8;</code>
-     *
      * @return A list containing the tags.
      */
     public com.google.protobuf.ProtocolStringList
     getTagsList() {
       return tags_;
     }
-
     /**
      * <code>repeated string tags = 8;</code>
-     *
      * @return The count of tags.
      */
     public int getTagsCount() {
       return tags_.size();
     }
-
     /**
      * <code>repeated string tags = 8;</code>
-     *
      * @param index The index of the element to return.
      * @return The tags at the given index.
      */
     public java.lang.String getTags(int index) {
-      return tags_.get(index);
+        return tags_.get(index);
     }
 
-    /**
-     * <code>repeated string tags = 8;</code>
-     *
-     * @param index The index of the value to return.
-     * @return The bytes of the tags at the given index.
-     */
-    public com.google.protobuf.ByteString
-    getTagsBytes(int index) {
-      return tags_.getByteString(index);
-    }
+        /**
+         * <code>repeated string tags = 8;</code>
+         *
+         * @param index The index of the value to return.
+         * @return The bytes of the tags at the given index.
+         */
+        public com.google.protobuf.ByteString
+        getTagsBytes(int index) {
+            return tags_.getByteString(index);
+        }
 
-    private byte memoizedIsInitialized = -1;
+        public static final int HIDDEN_FIELD_NUMBER = 9;
+        private int hidden_;
 
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+        /**
+         * <code>int32 hidden = 9;</code>
+         *
+         * @return The hidden.
+         */
+        @java.lang.Override
+        public int getHidden() {
+            return hidden_;
+        }
+
+        private byte memoizedIsInitialized = -1;
+
+        @java.lang.Override
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -635,17 +647,20 @@ public final class ArticleOuterClass {
         output.writeMessage(4, art_.get(i));
       }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(titleImage_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, titleImage_);
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 5, titleImage_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(articleType_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, articleType_);
-      }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(summary_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 7, summary_);
-      }
-      for (int i = 0; i < tags_.size(); i++) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 8, tags_.getRaw(i));
-      }
+        if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(articleType_)) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 6, articleType_);
+        }
+        if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(summary_)) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 7, summary_);
+        }
+        for (int i = 0; i < tags_.size(); i++) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 8, tags_.getRaw(i));
+        }
+        if (hidden_ != 0) {
+            output.writeInt32(9, hidden_);
+        }
       unknownFields.writeTo(output);
     }
 
@@ -674,17 +689,21 @@ public final class ArticleOuterClass {
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(articleType_)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, articleType_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(summary_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, summary_);
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < tags_.size(); i++) {
-          dataSize += computeStringSizeNoTag(tags_.getRaw(i));
+        if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(summary_)) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, summary_);
         }
-        size += dataSize;
-        size += 1 * getTagsList().size();
-      }
+        {
+            int dataSize = 0;
+            for (int i = 0; i < tags_.size(); i++) {
+                dataSize += computeStringSizeNoTag(tags_.getRaw(i));
+            }
+            size += dataSize;
+            size += 1 * getTagsList().size();
+        }
+        if (hidden_ != 0) {
+            size += com.google.protobuf.CodedOutputStream
+                    .computeInt32Size(9, hidden_);
+        }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -704,18 +723,20 @@ public final class ArticleOuterClass {
               .equals(other.getTitle())) return false;
       if (!getSubTitle()
               .equals(other.getSubTitle())) return false;
-      if (!getAuthor()
-              .equals(other.getAuthor())) return false;
-      if (!getArtList()
-              .equals(other.getArtList())) return false;
-      if (!getTitleImage()
-              .equals(other.getTitleImage())) return false;
-      if (!getArticleType()
-              .equals(other.getArticleType())) return false;
-      if (!getSummary()
-              .equals(other.getSummary())) return false;
-      if (!getTagsList()
-              .equals(other.getTagsList())) return false;
+        if (!getAuthor()
+                .equals(other.getAuthor())) return false;
+        if (!getArtList()
+                .equals(other.getArtList())) return false;
+        if (!getTitleImage()
+                .equals(other.getTitleImage())) return false;
+        if (!getArticleType()
+                .equals(other.getArticleType())) return false;
+        if (!getSummary()
+                .equals(other.getSummary())) return false;
+        if (!getTagsList()
+                .equals(other.getTagsList())) return false;
+        if (getHidden()
+                != other.getHidden()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -734,20 +755,22 @@ public final class ArticleOuterClass {
       hash = (37 * hash) + AUTHOR_FIELD_NUMBER;
       hash = (53 * hash) + getAuthor().hashCode();
       if (getArtCount() > 0) {
-        hash = (37 * hash) + ART_FIELD_NUMBER;
-        hash = (53 * hash) + getArtList().hashCode();
+          hash = (37 * hash) + ART_FIELD_NUMBER;
+          hash = (53 * hash) + getArtList().hashCode();
       }
-      hash = (37 * hash) + TITLEIMAGE_FIELD_NUMBER;
-      hash = (53 * hash) + getTitleImage().hashCode();
-      hash = (37 * hash) + ARTICLETYPE_FIELD_NUMBER;
-      hash = (53 * hash) + getArticleType().hashCode();
-      hash = (37 * hash) + SUMMARY_FIELD_NUMBER;
-      hash = (53 * hash) + getSummary().hashCode();
-      if (getTagsCount() > 0) {
-        hash = (37 * hash) + TAGS_FIELD_NUMBER;
-        hash = (53 * hash) + getTagsList().hashCode();
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
+        hash = (37 * hash) + TITLEIMAGE_FIELD_NUMBER;
+        hash = (53 * hash) + getTitleImage().hashCode();
+        hash = (37 * hash) + ARTICLETYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getArticleType().hashCode();
+        hash = (37 * hash) + SUMMARY_FIELD_NUMBER;
+        hash = (53 * hash) + getSummary().hashCode();
+        if (getTagsCount() > 0) {
+            hash = (37 * hash) + TAGS_FIELD_NUMBER;
+            hash = (53 * hash) + getTagsList().hashCode();
+        }
+        hash = (37 * hash) + HIDDEN_FIELD_NUMBER;
+        hash = (53 * hash) + getHidden();
+        hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -889,18 +912,20 @@ public final class ArticleOuterClass {
 
         if (artBuilder_ == null) {
           art_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000001);
         } else {
-          artBuilder_.clear();
+            artBuilder_.clear();
         }
-        titleImage_ = "";
+          titleImage_ = "";
 
-        articleType_ = "";
+          articleType_ = "";
 
-        summary_ = "";
+          summary_ = "";
 
-        tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+          tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
+        hidden_ = 0;
+
         return this;
       }
 
@@ -945,9 +970,10 @@ public final class ArticleOuterClass {
         result.summary_ = summary_;
         if (((bitField0_ & 0x00000002) != 0)) {
           tags_ = tags_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000002);
+            bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.tags_ = tags_;
+        result.hidden_ = hidden_;
         onBuilt();
         return result;
       }
@@ -1043,19 +1069,22 @@ public final class ArticleOuterClass {
           onChanged();
         }
         if (!other.getSummary().isEmpty()) {
-          summary_ = other.summary_;
-          onChanged();
+            summary_ = other.summary_;
+            onChanged();
         }
-        if (!other.tags_.isEmpty()) {
-          if (tags_.isEmpty()) {
-            tags_ = other.tags_;
-            bitField0_ = (bitField0_ & ~0x00000002);
-          } else {
-            ensureTagsIsMutable();
-            tags_.addAll(other.tags_);
+          if (!other.tags_.isEmpty()) {
+              if (tags_.isEmpty()) {
+                  tags_ = other.tags_;
+                  bitField0_ = (bitField0_ & ~0x00000002);
+              } else {
+                  ensureTagsIsMutable();
+                  tags_.addAll(other.tags_);
+              }
+              onChanged();
           }
-          onChanged();
-        }
+          if (other.getHidden() != 0) {
+              setHidden(other.getHidden());
+          }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -1783,46 +1812,37 @@ public final class ArticleOuterClass {
       }
 
       private com.google.protobuf.LazyStringList tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-
       private void ensureTagsIsMutable() {
         if (!((bitField0_ & 0x00000002) != 0)) {
           tags_ = new com.google.protobuf.LazyStringArrayList(tags_);
           bitField0_ |= 0x00000002;
         }
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @return A list containing the tags.
        */
       public com.google.protobuf.ProtocolStringList
       getTagsList() {
         return tags_.getUnmodifiableView();
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @return The count of tags.
        */
       public int getTagsCount() {
         return tags_.size();
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @param index The index of the element to return.
        * @return The tags at the given index.
        */
       public java.lang.String getTags(int index) {
         return tags_.get(index);
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @param index The index of the value to return.
        * @return The bytes of the tags at the given index.
        */
@@ -1830,10 +1850,8 @@ public final class ArticleOuterClass {
       getTagsBytes(int index) {
         return tags_.getByteString(index);
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @param index The index to set the value at.
        * @param value The tags to set.
        * @return This builder for chaining.
@@ -1848,10 +1866,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @param value The tags to add.
        * @return This builder for chaining.
        */
@@ -1865,10 +1881,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @param values The tags to add.
        * @return This builder for chaining.
        */
@@ -1880,10 +1894,8 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @return This builder for chaining.
        */
       public Builder clearTags() {
@@ -1892,34 +1904,69 @@ public final class ArticleOuterClass {
         onChanged();
         return this;
       }
-
       /**
        * <code>repeated string tags = 8;</code>
-       *
        * @param value The bytes of the tags to add.
        * @return This builder for chaining.
        */
       public Builder addTagsBytes(
               com.google.protobuf.ByteString value) {
-        if (value == null) {
-          throw new NullPointerException();
+          if (value == null) {
+              throw new NullPointerException();
+          }
+          checkByteStringIsUtf8(value);
+          ensureTagsIsMutable();
+          tags_.add(value);
+          onChanged();
+          return this;
+      }
+
+        private int hidden_;
+
+        /**
+         * <code>int32 hidden = 9;</code>
+         *
+         * @return The hidden.
+         */
+        @java.lang.Override
+        public int getHidden() {
+            return hidden_;
         }
-        checkByteStringIsUtf8(value);
-        ensureTagsIsMutable();
-        tags_.add(value);
-        onChanged();
-        return this;
-      }
 
-      @java.lang.Override
-      public final Builder setUnknownFields(
-              final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
+        /**
+         * <code>int32 hidden = 9;</code>
+         *
+         * @param value The hidden to set.
+         * @return This builder for chaining.
+         */
+        public Builder setHidden(int value) {
 
-      @java.lang.Override
-      public final Builder mergeUnknownFields(
-              final com.google.protobuf.UnknownFieldSet unknownFields) {
+            hidden_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 hidden = 9;</code>
+         *
+         * @return This builder for chaining.
+         */
+        public Builder clearHidden() {
+
+            hidden_ = 0;
+            onChanged();
+            return this;
+        }
+
+        @java.lang.Override
+        public final Builder setUnknownFields(
+                final com.google.protobuf.UnknownFieldSet unknownFields) {
+            return super.setUnknownFields(unknownFields);
+        }
+
+        @java.lang.Override
+        public final Builder mergeUnknownFields(
+                final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
 
@@ -7449,39 +7496,40 @@ public final class ArticleOuterClass {
 
   public static com.google.protobuf.Descriptors.FileDescriptor
   getDescriptor() {
-    return descriptor;
+      return descriptor;
   }
 
-  private static com.google.protobuf.Descriptors.FileDescriptor
-          descriptor;
+    private static com.google.protobuf.Descriptors.FileDescriptor
+            descriptor;
 
-  static {
-    java.lang.String[] descriptorData = {
-            "\n\rArticle.proto\"\232\001\n\010Articles\022\r\n\005title\030\001 " +
-                    "\001(\t\022\020\n\010subTitle\030\002 \001(\t\022\016\n\006author\030\003 \001(\t\022\025\n" +
-                    "\003art\030\004 \003(\0132\010.Article\022\022\n\ntitleImage\030\005 \001(\t" +
-                    "\022\023\n\013articleType\030\006 \001(\t\022\017\n\007summary\030\007 \001(\t\022\014" +
-                    "\n\004tags\030\010 \003(\t\"\260\001\n\007Article\022\014\n\004type\030\001 \001(\t\022\014" +
-                    "\n\004text\030\002 \001(\t\022\023\n\013blockauthor\030\003 \001(\t\022\025\n\rblo" +
-                    "ckfromsite\030\004 \001(\t\022\020\n\010language\030\005 \001(\t\022\025\n\005gr" +
-                    "oup\030\006 \001(\0132\006.Group\022\025\n\005photo\030\007 \001(\0132\006.Photo" +
-                    "\022\021\n\003tab\030\010 \001(\0132\004.Tab\022\n\n\002id\030\t \001(\003\"1\n\005Group" +
-                    "\022\r\n\005title\030\001 \001(\t\022\031\n\005items\030\002 \003(\0132\n.GroupIt" +
-                    "em\")\n\tGroupItem\022\r\n\005title\030\001 \001(\t\022\r\n\005bodys\030" +
-                    "\002 \003(\t\"1\n\005Photo\022\016\n\006author\030\001 \001(\t\022\013\n\003src\030\002 " +
-                    "\001(\t\022\013\n\003alt\030\003 \001(\t\"4\n\003Tab\022\r\n\005title\030\001 \001(\t\022\017" +
-                    "\n\007headers\030\002 \003(\t\022\r\n\005bodys\030\003 \003(\tb\006proto3"
+    static {
+        java.lang.String[] descriptorData = {
+                "\n\rArticle.proto\"\252\001\n\010Articles\022\r\n\005title\030\001 " +
+                        "\001(\t\022\020\n\010subTitle\030\002 \001(\t\022\016\n\006author\030\003 \001(\t\022\025\n" +
+                        "\003art\030\004 \003(\0132\010.Article\022\022\n\ntitleImage\030\005 \001(\t" +
+                        "\022\023\n\013articleType\030\006 \001(\t\022\017\n\007summary\030\007 \001(\t\022\014" +
+                        "\n\004tags\030\010 \003(\t\022\016\n\006hidden\030\t \001(\005\"\260\001\n\007Article" +
+                        "\022\014\n\004type\030\001 \001(\t\022\014\n\004text\030\002 \001(\t\022\023\n\013blockaut" +
+                        "hor\030\003 \001(\t\022\025\n\rblockfromsite\030\004 \001(\t\022\020\n\010lang" +
+                        "uage\030\005 \001(\t\022\025\n\005group\030\006 \001(\0132\006.Group\022\025\n\005pho" +
+                        "to\030\007 \001(\0132\006.Photo\022\021\n\003tab\030\010 \001(\0132\004.Tab\022\n\n\002i" +
+                        "d\030\t \001(\003\"1\n\005Group\022\r\n\005title\030\001 \001(\t\022\031\n\005items" +
+                        "\030\002 \003(\0132\n.GroupItem\")\n\tGroupItem\022\r\n\005title" +
+                        "\030\001 \001(\t\022\r\n\005bodys\030\002 \003(\t\"1\n\005Photo\022\016\n\006author" +
+                        "\030\001 \001(\t\022\013\n\003src\030\002 \001(\t\022\013\n\003alt\030\003 \001(\t\"4\n\003Tab\022" +
+                    "\r\n\005title\030\001 \001(\t\022\017\n\007headers\030\002 \003(\t\022\r\n\005bodys" +
+                    "\030\003 \003(\tb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
             .internalBuildGeneratedFileFrom(descriptorData,
-                    new com.google.protobuf.Descriptors.FileDescriptor[] {
+                    new com.google.protobuf.Descriptors.FileDescriptor[]{
                     });
-    internal_static_Articles_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-    internal_static_Articles_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_Articles_descriptor,
-            new java.lang.String[] { "Title", "SubTitle", "Author", "Art", "TitleImage", "ArticleType", "Summary", "Tags", });
+        internal_static_Articles_descriptor =
+                getDescriptor().getMessageTypes().get(0);
+        internal_static_Articles_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_Articles_descriptor,
+                new java.lang.String[] { "Title", "SubTitle", "Author", "Art", "TitleImage", "ArticleType", "Summary", "Tags", "Hidden", });
     internal_static_Article_descriptor =
             getDescriptor().getMessageTypes().get(1);
     internal_static_Article_fieldAccessorTable = new

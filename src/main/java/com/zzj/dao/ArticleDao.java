@@ -5,10 +5,10 @@ import com.zzj.constants.ApplicationConst;
 import com.zzj.entity.Article;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
@@ -73,12 +73,9 @@ public class ArticleDao extends BaseDao<Article> {
         params.add(article.getAuthor() == null ? "梓健_(:з」∠)_" : article.getAuthor());
         params.add(article.getSummary());
         params.add(article.getSubTitle());
-        params.add(article.getTitle());
-        params.add(article.getTitleImage());
-        params.add(article.getArticleType());
-        params.add(article.getAuthor() == null ? "梓健_(:з」∠)_" : article.getAuthor());
-        params.add(article.getSummary());
-        params.add(article.getSubTitle());
+        params.add(article.getHidden());
+
+        params.addAll(params.subList(1, params.size()));
 
         return getMySQLPool().withTransaction(conn ->
                 conn.preparedQuery(insertArticle).execute(Tuple.from(params)).onItem().transformToUni(rows -> {
@@ -124,7 +121,7 @@ public class ArticleDao extends BaseDao<Article> {
                 .setCommentCount(delegateRow.getIntCol("comment_count"));
     }
 
-    private final String insertArticle = "INSERT INTO `articles` (`id`, `title`, `title_image`, `article_type`, `author`, `summary`, `sub_title`) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE title=?,title_image=?,article_type = ?,author=?,summary=?,sub_title=?,version = version+1";
+    private final String insertArticle = "INSERT INTO `articles` (`id`, `title`, `title_image`, `article_type`, `author`, `summary`, `sub_title`, `hidden`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE title=?,title_image=?,article_type = ?,author=?,summary=?,sub_title=?,hidden=?,version = version+1";
 
 
     private static final String searchWithTagSql =

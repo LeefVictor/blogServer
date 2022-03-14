@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message Items{
+  repeated Item items = 1;
+  int32 totalPage = 2;
+  int32 page = 3;
+}
+
+message Item{
+  int64 articleId = 1;
+  string title = 2;
+  string type = 3;
+  string typedesc = 4;
+  string titleImage = 5;
+}

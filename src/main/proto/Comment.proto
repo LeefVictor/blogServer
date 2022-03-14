@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message Comments{
+  repeated Comment array = 1;
+}
+
+message Comment{
+  string author = 1;
+  string content = 2;
+  string date = 3;
+  Reply reply = 4;
+  int64 id = 5;
+
+}
+
+message Reply{
+  string author = 1;
+  string content = 2;
+  string date = 3;
+}

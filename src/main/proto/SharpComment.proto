@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message SharpComments{
+  repeated SharpComment comments = 1;
+}
+
+message SharpComment{
+  string nick = 1;
+  int64 articleId = 2;
+  string content = 3;
+}

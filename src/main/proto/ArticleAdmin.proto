@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+message Articles{
+  string title = 1;
+  string subTitle = 2;
+  string author = 3;
+  repeated Article art = 4;
+  string titleImage = 5;
+}
+
+message Article{
+  string type = 1;
+  string text = 2;
+  string blockauthor = 3;
+  string blockfromsite = 4;
+  string language = 5;
+  Group group = 6;
+  Photo photo = 7;
+  Tab tab = 8;
+}
+
+
+message Group{
+  string title = 1;
+  repeated GroupItem items = 2;
+}
+
+message GroupItem{
+  string title = 1;
+  repeated string bodys = 2;
+}
+
+message Photo{
+  string author = 1;
+  string src = 2;
+  string alt = 3;
+}
+
+message Tab{
+  string title = 1;
+  repeated string headers = 2;
+  repeated string bodys = 3;
+}

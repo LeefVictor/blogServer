@@ -3,8 +3,8 @@ package com.zzj.controller;
 import com.zzj.service.Serv4Web;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
