@@ -95,4 +95,11 @@ public class BlogResource {
     public Uni<byte[]> pics(@PathParam("page") int page) {
         return serv4Web.queryUploadImage(page).onItem().transform(pics -> pics.toByteArray());
     }
+
+    @GET
+    @Produces("application/x-protobuf")
+    @Path("/hollow")
+    public Uni<byte[]> hollow() {
+        return serv4Web.queryHollowData().onItem().transform(pics -> pics.toByteArray());
+    }
 }

@@ -1,8 +1,10 @@
 package com.zzj.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Comments extends SuperEntity<Comments>{
+public class Comments extends SuperEntity<Comments> implements Serializable {
+    private static final long serialVersionUID = 1L;
     private long articleId;
     private String nick;
     private String email;

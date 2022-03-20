@@ -1,6 +1,10 @@
 package com.zzj.entity;
 
-public class Article extends SuperEntity<Article> {
+import java.io.Serializable;
+
+public class Article extends SuperEntity<Article> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String title;
     private String subTitle;
     private String titleImage;

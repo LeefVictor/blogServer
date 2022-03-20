@@ -1,6 +1,9 @@
 package com.zzj.entity;
 
-public class UploadImage extends SuperEntity<UploadImage>{
+import java.io.Serializable;
+
+public class UploadImage extends SuperEntity<UploadImage> implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String name;
     private String wholeUrl;

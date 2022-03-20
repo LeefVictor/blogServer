@@ -55,6 +55,9 @@ public class Serv4Web {
     @Inject
     private AnimeDao animeDao;
 
+    @Inject
+    private TreeHollowDao treeHollowDao;
+
 
     //主页
     public Uni<HomeListOuterClass.HomeList> homeList(PageVO request) {
@@ -364,6 +367,17 @@ public class Serv4Web {
             boolean hasNext = page * offset < ((Integer) objects.get(1));
 
             return PicTimeline.Pics.newBuilder().setHasNext(hasNext ? 1 : 0).addAllArray(map.values().stream().map(PicTimeline.PicsList.Builder::build).collect(Collectors.toList())).build();
+        });
+    }
+
+    //随机50条数据
+    public Uni<Hollow.Data> queryHollowData() {
+        return treeHollowDao.queryRand(50).onItem().transform(treeHollows -> {
+            List<Hollow.Msg> msgs = treeHollows.stream()
+                    .map(m -> Hollow.Msg.newBuilder().setContent(m.getContent()).setId(m.getId()).build())
+                    .collect(Collectors.toList());
+
+            return Hollow.Data.newBuilder().addAllMsg(msgs).build();
         });
     }
 

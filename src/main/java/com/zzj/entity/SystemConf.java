@@ -1,6 +1,9 @@
 package com.zzj.entity;
 
-public class SystemConf extends SuperEntity<SystemConf>{
+import java.io.Serializable;
+
+public class SystemConf extends SuperEntity<SystemConf> implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
     private String value;
     private String type;

@@ -1,6 +1,9 @@
 package com.zzj.entity;
 
-public class Article2Tags extends SuperEntity<Article2Tags> {
+import java.io.Serializable;
+
+public class Article2Tags extends SuperEntity<Article2Tags> implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String tag;
     private long articleId;
 

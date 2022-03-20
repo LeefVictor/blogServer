@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Data{
+  repeated Msg msg = 1;
+}
+
+message Msg{
+  string content = 1;
+  int64 id = 2;
+}
