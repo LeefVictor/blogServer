@@ -1,5 +1,8 @@
 package com.zzj.controller;
 
+import com.alibaba.csp.sentinel.annotation.cdi.interceptor.SentinelResourceBinding;
+import com.zzj.sentinelfallback.DefaultFallback;
+import com.zzj.sentinelfallback.Fallback;
 import com.zzj.service.Serv4Web;
 import com.zzj.vo.request.PageVO;
 import io.smallrye.mutiny.Uni;
@@ -18,6 +21,7 @@ public class AnimeResource {
     private Serv4Web serv4Web;
 
 
+    @SentinelResourceBinding(value = "animeSearch", defaultFallback = Fallback.bytesMethod, fallbackClass = DefaultFallback.class)
     @GET
     @Produces("application/x-protobuf")
     @Path("/search")

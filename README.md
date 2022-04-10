@@ -68,3 +68,6 @@ If you want to learn more about building native executables, please consult http
 Easily start your Reactive RESTful Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+因为要使用alibaba的sentinel， 但是这个模式下有很多内部类的单例， 这些在运行时使用才创建的类在编译为native时是不通过的， 这也是为什么说java是动态语言的原因， 所以先使用回jar包的方式吧， 直接./mvnw
+package -Dmaven.test.skip=true 不加-P native ，然后在target/app下就是可运行包了。 

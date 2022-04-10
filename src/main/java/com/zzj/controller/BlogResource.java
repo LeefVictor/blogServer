@@ -1,6 +1,9 @@
 package com.zzj.controller;
 
+import com.alibaba.csp.sentinel.annotation.cdi.interceptor.SentinelResourceBinding;
 import com.zzj.enums.ConfType;
+import com.zzj.sentinelfallback.DefaultFallback;
+import com.zzj.sentinelfallback.Fallback;
 import com.zzj.service.Serv4Web;
 import com.zzj.superior.IPValid;
 import com.zzj.vo.request.PageVO;
@@ -18,6 +21,7 @@ public class BlogResource {
     @Inject
     private Serv4Web serv4Web;
 
+    @SentinelResourceBinding(value = "homeList", defaultFallback = Fallback.bytesMethod, fallbackClass = DefaultFallback.class)
     @GET
     @Produces("application/x-protobuf")
     @Path("/home/{page}")
@@ -30,6 +34,7 @@ public class BlogResource {
     @GET
     @Produces("application/x-protobuf")
     @Path("/rightSide")
+    @SentinelResourceBinding(value = "rightSide", defaultFallback = Fallback.bytesMethod, fallbackClass = DefaultFallback.class)
     public Uni<byte[]> rightSide() {
         return serv4Web.rightSideList().onItem().transform(rightSideList -> rightSideList.toByteArray());
     }
@@ -50,6 +55,7 @@ public class BlogResource {
     }
 
 
+    @SentinelResourceBinding(value = "blogSearch", defaultFallback = Fallback.bytesMethod, fallbackClass = DefaultFallback.class)
     @GET
     @Produces("application/x-protobuf")
     @Path("/search")
@@ -66,6 +72,7 @@ public class BlogResource {
         return serv4Web.queryComments(articleId).onItem().transform(comments -> comments.toByteArray());
     }
 
+    @SentinelResourceBinding(value = "writeComments", defaultFallback = Fallback.strMethod, fallbackClass = DefaultFallback.class)
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/detail/{id}/writeComment")
@@ -89,6 +96,7 @@ public class BlogResource {
         return serv4Web.getDefaultConf(ConfType.front);
     }
 
+    @SentinelResourceBinding(value = "pictures", defaultFallback = Fallback.bytesMethod, fallbackClass = DefaultFallback.class)
     @GET
     @Produces("application/x-protobuf")
     @Path("/pics/{page}")

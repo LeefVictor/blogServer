@@ -210,8 +210,6 @@ public class Serv4Web {
     }
 
 
-    //TODO 发表评论,写操作拦截，
-    // 同一个文章一个 ip只要发送超过了3次，就列入黑名单
     public Uni<String> writeComment(long articleId, String nick, String email, String comment) {
         return commentsDao.insertComments(articleId, nick, email, comment)
                 .onItem().transform(aLong -> {
