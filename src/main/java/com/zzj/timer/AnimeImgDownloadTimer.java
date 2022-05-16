@@ -11,8 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +41,8 @@ public class AnimeImgDownloadTimer {
     private Logger logger = LoggerFactory.getLogger(AnimeImgDownloadTimer.class);
 
     private final String defalutPicName = "default_anime_img";
+
+    private SSLContext context;
 
     private AtomicInteger running = new AtomicInteger(0);
 
@@ -50,6 +58,9 @@ public class AnimeImgDownloadTimer {
 
     @Scheduled(every = "60s", delay = 20, delayUnit = TimeUnit.SECONDS)
     public void timer() {
+        if (context == null) {
+            initSSLContext();
+        }
         //配置上面禁止操作了
         if (confService.getBooleanConf(disable_download_timer)) {
             return;
@@ -103,7 +114,7 @@ public class AnimeImgDownloadTimer {
                 return null;
             }
             try {
-                HttpClient client = HttpClient.newBuilder().build();
+                HttpClient client = HttpClient.newBuilder().sslContext(context).build();
                 HttpRequest.Builder builder = HttpRequest.newBuilder();
                 builder.GET().uri(new URI(url));
                 return client.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
@@ -127,6 +138,59 @@ public class AnimeImgDownloadTimer {
             }
             return confService.getConf(imageServerUrl) + name;
         }).subscribe().with(onItemCallback);
+    }
+
+    private void initSSLContext() {
+        try {
+            context = SSLContext.getInstance("TLS");
+            context.init(
+                    null,
+                    new TrustManager[]
+                            {
+                                    new X509ExtendedTrustManager() {
+                                        public X509Certificate[] getAcceptedIssuers() {
+                                            return null;
+                                        }
+
+                                        public void checkClientTrusted(
+                                                final X509Certificate[] a_certificates,
+                                                final String a_auth_type) {
+                                        }
+
+                                        public void checkServerTrusted(
+                                                final X509Certificate[] a_certificates,
+                                                final String a_auth_type) {
+                                        }
+
+                                        public void checkClientTrusted(
+                                                final X509Certificate[] a_certificates,
+                                                final String a_auth_type,
+                                                final Socket a_socket) {
+                                        }
+
+                                        public void checkServerTrusted(
+                                                final X509Certificate[] a_certificates,
+                                                final String a_auth_type,
+                                                final Socket a_socket) {
+                                        }
+
+                                        public void checkClientTrusted(
+                                                final X509Certificate[] a_certificates,
+                                                final String a_auth_type,
+                                                final SSLEngine a_engine) {
+                                        }
+
+                                        public void checkServerTrusted(
+                                                final X509Certificate[] a_certificates,
+                                                final String a_auth_type,
+                                                final SSLEngine a_engine) {
+                                        }
+                                    }
+                            },
+                    null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
